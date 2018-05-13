@@ -178,6 +178,13 @@ Template.toolbarSection.helpers({
         });
 
         buttonData.push({
+            id: 'probe',
+            title: 'Fiducial',
+            classes: 'imageViewerTool',
+            iconClasses: 'fa fa-dot-circle-o'
+        });
+
+        buttonData.push({
             id: 'length',
             title: 'Length',
             classes: 'imageViewerTool toolbarSectionButton',
