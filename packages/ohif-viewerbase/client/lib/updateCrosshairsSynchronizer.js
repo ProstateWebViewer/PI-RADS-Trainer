@@ -1,6 +1,7 @@
 import { $ } from 'meteor/jquery';
 import { getFrameOfReferenceUID } from './getFrameOfReferenceUID';
 import { crosshairsSynchronizers } from './crosshairsSynchronizers';
+import { cornerstone } from 'meteor/ohif:cornerstone';
 
 /**
  * This function is used to maintain the updateImageSynchronizers
@@ -12,6 +13,17 @@ import { crosshairsSynchronizers } from './crosshairsSynchronizers';
  *
  * @param currentFrameOfReferenceUID
  */
+function mouseDown(e) {
+  // console.log("=====================");
+  const evt = new MouseEvent("mousedown", {
+    bubbles: false,
+    cancelable: true,
+    view: window
+  });
+  const sourceElement = e.currentTarget;
+  sourceElement.dispatchEvent(evt);
+}
+
  export function updateCrosshairsSynchronizer(currentFrameOfReferenceUID) {
     // Check if an old synchronizer exists, and if it does, destroy it
     // If not, create a new one
@@ -27,6 +39,9 @@ import { crosshairsSynchronizers } from './crosshairsSynchronizers';
 
     // Add all elements that stem from the same frame of reference
     $('.imageViewerViewport').each((index, element) => {
+
+        element.addEventListener('cornerstonestackscroll', mouseDown);
+
         const frameOfReferenceUID = getFrameOfReferenceUID(element);
         if (currentFrameOfReferenceUID !== frameOfReferenceUID) {
             return;
