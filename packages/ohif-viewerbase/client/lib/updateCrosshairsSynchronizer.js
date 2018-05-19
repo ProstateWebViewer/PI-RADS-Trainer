@@ -13,16 +13,6 @@ import { cornerstone } from 'meteor/ohif:cornerstone';
  *
  * @param currentFrameOfReferenceUID
  */
-function mouseDown(e) {
-  // console.log("=====================");
-  const evt = new MouseEvent("mousedown", {
-    bubbles: false,
-    cancelable: true,
-    view: window
-  });
-  const sourceElement = e.currentTarget;
-  sourceElement.dispatchEvent(evt);
-}
 
  export function updateCrosshairsSynchronizer(currentFrameOfReferenceUID) {
     // Check if an old synchronizer exists, and if it does, destroy it
@@ -33,15 +23,12 @@ function mouseDown(e) {
         synchronizer.destroy();
     } else {
         // Create a new synchronizer
-        crosshairsSynchronizers.synchronizers[currentFrameOfReferenceUID] = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.updateImageSynchronizer);
+        crosshairsSynchronizers.synchronizers[currentFrameOfReferenceUID] = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.stackImagePositionSynchronizer);
         synchronizer = crosshairsSynchronizers.synchronizers[currentFrameOfReferenceUID];
     }
 
     // Add all elements that stem from the same frame of reference
     $('.imageViewerViewport').each((index, element) => {
-
-        element.addEventListener('cornerstonestackscroll', mouseDown);
-
         const frameOfReferenceUID = getFrameOfReferenceUID(element);
         if (currentFrameOfReferenceUID !== frameOfReferenceUID) {
             return;
