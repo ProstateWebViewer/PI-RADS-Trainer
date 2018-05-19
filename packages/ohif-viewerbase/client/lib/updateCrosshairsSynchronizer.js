@@ -21,7 +21,7 @@ import { crosshairsSynchronizers } from './crosshairsSynchronizers';
         synchronizer.destroy();
     } else {
         // Create a new synchronizer
-        crosshairsSynchronizers.synchronizers[currentFrameOfReferenceUID] = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.updateImageSynchronizer);
+        crosshairsSynchronizers.synchronizers[currentFrameOfReferenceUID] = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.stackImagePositionSynchronizer);
         synchronizer = crosshairsSynchronizers.synchronizers[currentFrameOfReferenceUID];
     }
 
