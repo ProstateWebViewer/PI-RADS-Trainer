@@ -81,6 +81,10 @@ export const toolManager = {
             mouse: cornerstoneTools.dragProbe,
             touch: cornerstoneTools.dragProbeTouch
         });
+        toolManager.addTool('probe', {
+            mouse: cornerstoneTools.probe,
+            touch: cornerstoneTools.probeTouch
+        });
         toolManager.addTool('pan', {
             mouse: cornerstoneTools.pan,
             touch: cornerstoneTools.panTouchDrag,
