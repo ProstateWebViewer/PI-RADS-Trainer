@@ -487,7 +487,10 @@ HP.ProtocolEngine = class ProtocolEngine {
 
         // Retrieve the properties associated with the current display set's viewport structure template
         // If no such layout properties exist, stop here.
-        const layoutProps = stageModel.viewportStructure.properties;
+
+        // const layoutProps = stageModel.viewportStructure.properties;
+        const layoutProps = {rows: 2, columns: 2};
+        
         if (!layoutProps) {
             return;
         }
