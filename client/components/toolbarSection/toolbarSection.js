@@ -63,13 +63,6 @@ Template.toolbarSection.helpers({
         const extraTools = [];
 
         extraTools.push({
-            id: 'crosshairs',
-            title: 'Crosshairs',
-            classes: 'imageViewerTool',
-            iconClasses: 'fa fa-crosshairs'
-        });
-
-        extraTools.push({
             id: 'stackScroll',
             title: 'Stack Scroll',
             classes: 'imageViewerTool',
@@ -182,6 +175,13 @@ Template.toolbarSection.helpers({
             title: 'Pan',
             classes: 'imageViewerTool',
             svgLink: '/packages/ohif_viewerbase/assets/icons.svg#icon-tools-pan'
+        });
+
+        buttonData.push({
+            id: 'crosshairs',
+            title: 'Sync',
+            classes: 'imageViewerTool',
+            iconClasses: 'fa fa-refresh'
         });
 
         buttonData.push({
