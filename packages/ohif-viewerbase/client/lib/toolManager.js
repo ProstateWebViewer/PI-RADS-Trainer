@@ -461,6 +461,14 @@ export const toolManager = {
                 newCornerstoneToolRight.mouse.activate(element, 4); // 4 means right mouse button
             }
         } else {
+            const currentFrameOfReferenceUID = getFrameOfReferenceUID(element);
+            // Check if an old synchronizer exists, and if it does, destroy it
+            // If not, create a new one
+            let synchronizer = crosshairsSynchronizers.synchronizers[currentFrameOfReferenceUID];
+            if (synchronizer) {
+                // If it already exists, remove all source & target elements
+                synchronizer.destroy();
+            }
             // This block ensures that all mouse button tools keep working
             if (newToolIdLeft === newToolIdMiddle && newToolIdMiddle === newToolIdRight) {
                 newCornerstoneToolRight.mouse.activate(element, 7); // 7 means left mouse button, right mouse button and middle mouse button
