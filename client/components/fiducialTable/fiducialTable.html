@@ -1,0 +1,73 @@
+<template name="fiducialTable">
+    <div id="fiducialTable" class="flex-v">
+        {{#scrollArea class='measurementTableView flex-grow fit' scrollStep=63}}
+        <div class="measurementTableHeader">
+            Fiducials
+        </div>
+        {{ #each rowItem in fiducials }}
+        <div class="measurementTableRow">
+            <div class='measurementRowSidebar'>
+                <div class="measurementNumber">
+                    {{ rowItem.measurementNumber }}
+                </div>
+            </div>
+            <div class="measurementDetails">
+                <div class='location form-group'>
+                    <label for="label" class="control-label">Label</label>
+                    <select id='label' class="form-group">
+                        {{ #each label in prostateLabels }}
+                        <option>{{label}}</option>
+                        {{ /each }}
+                    </select>
+                </div>
+                <div class="timepointData">
+                    <div class="noselect form-group">
+                        <label for="t2" class="control-label">T2</label>
+                        <select id='t2'>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                    <div class="noselect form-group">
+                        <label for="dwi" class="control-label">DWI</label>
+                        <select id='dwi'>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                    <div class="noselect form-group">
+                        <label for="dce" class="control-label">DCE</label>
+                        <select id='dce'>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                    <div class="noselect form-group">
+                        <label for="pirads" class="control-label">PIRADS</label>
+                        <select id='pirads'>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ /each }}
+        <div class="report-area">
+            <div class="btn btn-sm js-save">Save & Get Feedback</div>
+        </div>
+        {{/scrollArea}}
+    </div>
+</template>
