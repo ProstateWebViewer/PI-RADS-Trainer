@@ -1,31 +1,69 @@
 import { Template } from 'meteor/templating';
 import { OHIF } from 'meteor/ohif:core';
 import { Mongo } from 'meteor/mongo';
+import { cornerstoneTools } from 'meteor/ohif:cornerstone'
+import { $ } from 'meteor/jquery';
 
 fiducials = new Mongo.Collection('fiducials', {connection: null});
+let counter = 0;
 
-// Add fiducial data to the list
-function addFiducialToList(element) {
-    fiducialArray = cornerstoneTools.getElementToolStateManager(element).get(element, 'probe')['data'];
-    fiducialArrayLength = fiducialArray.length;
-    if (fiducialArrayLength) {
-        try {
-            fiducials.insert({'measurementNumber': fiducialArrayLength, 'data': fiducialArray[fiducialArrayLength - 1], '_id': fiducialArrayLength.toString()});
-        } catch (error) {
-            return;
-        }
-    }
+!function(t,n,i){var a={},e=function(t){a[t]&&(n.clearInterval(a[t]),a[t]=null)},r="waitUntilExists.found";t.fn.waitUntilExists=function(i,o,l){var s=this.selector,u=t(s),c=u.not(function(){return t(this).data(r)});return"remove"===i?e(s):(c.each(i).data(r,!0),o&&u.length?e(s):l||(a[s]=n.setInterval(function(){u.waitUntilExists(i,o,!0)},500))),u}}(window.jQuery,window);
+
+function addFiducialData(element, data) {
+    counter++;
+    fiducials.insert({'measurementNumber': counter, 'data': data, '_id': counter.toString()});
 }
 
+function removeFiducialData(element, data) {
+    counter = 0;
+    fiducials.remove({});
+    fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(element, 'probe')['data'].forEach((val) => {
+        addFiducialData(element, data);
+    });
+}
+
+$('.imageViewerViewport').waitUntilExists((index, element) => {
+    element.addEventListener('cornerstonemeasurementremoved', (ev) => {
+        if (ev.detail.toolType === 'probe') {
+            removeFiducialData(ev.target, ev.detail.measurementData);
+        }
+    });
+    element.addEventListener('cornerstonetoolsmeasurementadded', (ev) => {
+        if (ev.detail.toolType === 'probe') {
+            addFiducialData(ev.target, ev.detail.measurementData);
+        }
+    });
+    element.addEventListener('cornerstonetoolsmeasurementmodified', (ev) => {
+        if (ev.detail.toolType === 'probe') {
+            $(this).off('mouseup').one('mouseup', () => {
+                removeFiducialData(ev.target, ev.detail.measurementData);
+            });
+        }
+    });
+})
+
+// Add fiducial data to the list
+// function addFiducialToList(element) {
+//     fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(element, 'probe')['data'];
+//     fiducialArrayLength = fiducialArray.length;
+//     if (fiducialArrayLength) {
+//         try {
+//             fiducials.insert({'measurementNumber': fiducialArrayLength, 'data': fiducialArray[fiducialArrayLength - 1], '_id': fiducialArrayLength.toString()});
+//         } catch (error) {
+//             return;
+//         }
+//     }
+// }
+
 // Listen to click event when fiducial tool is used
-document.addEventListener('click', (event) => {
-    if (event.target.localName === 'canvas') {
-      const activeTool = OHIF.viewerbase.toolManager.getActiveTool();
-      if (activeTool === 'probe') {
-          addFiducialToList(event.target.parentElement);
-      }
-    }
-});
+// document.addEventListener('click', (ev) => {
+//     if (ev.target.localName === 'canvas') {
+//       const activeTool = OHIF.viewerbase.toolManager.getActiveTool();
+//       if (activeTool === 'probe') {
+//           addFiducialToList(ev.target.parentElement);
+//       }
+//     }
+// });
 
 var zoneDecoder = function (sectorName)
 {
@@ -164,7 +202,7 @@ Template.fiducialTable.onCreated(() => {
 
 Template.fiducialTable.helpers({
   fiducials() {
-    return fiducials.find({}).fetch();
+    return fiducials.find().fetch();
   },
 
   prostateLabels() {

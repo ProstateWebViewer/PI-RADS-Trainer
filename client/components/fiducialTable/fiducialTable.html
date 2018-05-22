@@ -1,4 +1,85 @@
 <template name="fiducialTable">
+  <div id='fiducialEditor'>
+      <div class="tab-content">
+
+          <div id="editfiducial" class="fiducialEditorSection">
+              <div class="row">
+                <div class="col-xs-12">
+                    <h3>Fiducials</h3>
+                    <hr/>
+                </div>
+              </div>
+          </div>
+
+          <div class="scrollArea">
+              <div class="container">
+                  {{ #each rowItem in fiducials }}
+                  <div class="row">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-xs-12">
+                                <p>Fiducial {{ rowItem.measurementNumber }}</p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  {{ /each }}
+              </div>
+          </div>
+
+          <div class="report-area">
+              <div class="btn btn-sm js-save">Save & Get Feedback</div>
+          </div>
+
+
+          <!-- <div id="selectfiducial" class="fiducialEditorSection">
+              <div class="dropdown fiducialDropdown">
+                  <button type="button" class="btn btn-sm dropdown-toggle" id="fiducialDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      <i class="fa fa-cog"></i> <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="fiducialDropdown">
+                      <li>
+                          <a id="newfiducial">
+                              New <i class="fa fa-file-text"></i>
+                          </a>
+                      </li>
+                      <li>
+                          <a id="importfiducial" class="btn-file">
+                              Import <input type="file"> <i class="fa fa-upload"></i>
+                          </a>
+                      </li>
+                      {{ #unless locked }}
+                      <li>
+                          <a id="renamefiducial">
+                              Rename <i class="fa fa-pencil"></i>
+                          </a>
+                      </li>
+                      {{ /unless }}
+                      <li>
+                          <a id="saveAsfiducial">
+                              Save As <i class="fa fa-files-o"></i>
+                          </a>
+                      </li>
+                      <li>
+                          <a id="exportJSON">
+                              Export <i class="fa fa-download"></i>
+                          </a>
+                      </li>
+                      {{ #unless locked }}
+                      <li>
+                          <a id="deletefiducial">
+                              Delete <i class="fa fa-trash-o"></i>
+                          </a>
+                      </li>
+                      {{ /unless }}
+                  </ul>
+              </div>
+          </div> -->
+      </div>
+  </div>
+</template>
+
+<!-- <template name="fiducialTable">
     <div id="fiducialTable" class="flex-v">
         {{#scrollArea class='measurementTableView flex-grow fit' scrollStep=63}}
         <div class="measurementTableHeader">
@@ -70,4 +151,4 @@
         </div>
         {{/scrollArea}}
     </div>
-</template>
+</template> -->
