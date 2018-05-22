@@ -7,7 +7,7 @@ const toolTypes = ['length', 'simpleAngle', 'probe', 'ellipticalRoi', 'rectangle
 const TypeToLabelMap = {
     length: 'Length',
     simpleAngle: 'Angle',
-    probe: 'Probe',
+    probe: 'Fiducial',
     ellipticalRoi: 'Elliptical ROI',
     rectangleRoi: 'Rectangle ROI',
     arrowAnnotate: 'Annotation'
