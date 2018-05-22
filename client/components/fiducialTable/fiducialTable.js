@@ -11,14 +11,14 @@ let counter = 0;
 
 function addFiducialData(element, data) {
     counter++;
-    fiducials.insert({'measurementNumber': counter, 'data': data, '_id': counter.toString()});
+    fiducials.insert({'measurementNumber': counter, 'data': data, '_id': counter.toString(), 'x': Math.round(data.handles.end.x), 'y': Math.round(data.handles.end.y)});
 }
 
 function removeFiducialData(element, data) {
     counter = 0;
     fiducials.remove({});
     fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(element, 'probe')['data'].forEach((val) => {
-        addFiducialData(element, data);
+        addFiducialData(element, val);
     });
 }
 
