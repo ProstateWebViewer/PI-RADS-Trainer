@@ -3,7 +3,7 @@ import { cornerstoneTools, cornerstone } from 'meteor/ohif:cornerstone'
 import { $ } from 'meteor/jquery';
 import { waitUntilExists } from 'jquery.waituntilexists'
 
-fiducials = new Mongo.Collection('fiducials', {connection: null});
+fiducialsCollection = new Mongo.Collection('fiducialsCollection', {connection: null});
 const probeSynchronizer = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.stackImagePositionSynchronizer);
 let fiducialCounter = 0;
 
@@ -29,14 +29,17 @@ function projectPatientPointToImagePlane (patientPoint, imagePlane) {
 }
 
 function addFiducialData(element, data) {
+    const id = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
     fiducialCounter++;
-    fiducials.insert({'measurementNumber': fiducialCounter, 'data': data, '_id': fiducialCounter.toString(), 'x': Math.round(data.handles.end.x), 'y': Math.round(data.handles.end.y)});
+    fiducialsCollection.insert(
+      { 'studyInstanceUid': id, 'measurementNumber': fiducialCounter, 'data': data, '_id': fiducialCounter.toString(), 'x': Math.round(data.handles.end.x), 'y': Math.round(data.handles.end.y) }
+    );
     syncFiducial(element, data, 'add');
 }
 
 function removeFiducialData(element, data) {
     fiducialCounter = 0;
-    fiducials.remove({});
+    fiducialsCollection.remove({});
     fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(element, 'probe')['data'];
     fiducialArray.forEach((val) => {
         addFiducialData(element, val);

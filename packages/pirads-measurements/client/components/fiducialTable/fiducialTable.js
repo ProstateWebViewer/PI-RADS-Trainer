@@ -140,7 +140,8 @@ Template.fiducialTable.onCreated(() => {
 
 Template.fiducialTable.helpers({
   fiducials() {
-    return fiducials.find().fetch();
+    const id = window.location.pathname.split('/')[2];
+    return fiducialsCollection.find({'studyInstanceUid': id}).fetch();
   },
 
   prostateLabels() {
