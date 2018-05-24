@@ -4,6 +4,7 @@ import { $ } from 'meteor/jquery';
 import { waitUntilExists } from 'jquery.waituntilexists'
 
 fiducials = new Mongo.Collection('fiducials', {connection: null});
+const probeSynchronizer = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.stackImagePositionSynchronizer);
 let fiducialCounter = 0;
 
 function addFiducialData(element, data) {
@@ -15,7 +16,8 @@ function addFiducialData(element, data) {
 function removeFiducialData(element, data) {
     fiducialCounter = 0;
     fiducials.remove({});
-    fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(element, 'probe')['data'].forEach((val) => {
+    fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(element, 'probe')['data'];
+    fiducialArray.forEach((val) => {
         addFiducialData(element, val);
     });
     syncFiducial(element, data, 'remove');
@@ -26,9 +28,15 @@ function addFiducail(element, measurementData) {
     cornerstone.updateImage(element);
 }
 
-function removeFiducail(element, measurementData) {
-    cornerstoneTools.removeToolState(element, 'probe', measurementData);
+function removeFiducail(targetElement, element, measurementData) {
+    cornerstoneTools.clearToolState(element, 'probe');
     cornerstone.updateImage(element);
+    fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(targetElement, 'probe')['data'];
+    fiducialArray.forEach((val) => {
+        $(element).off('cornerstonetoolsmeasurementadded');
+        addFiducail(element, val);
+        bindToMeasurementAdded(element);
+    });
 }
 
 function syncFiducial(element, measurementData, command) {
@@ -41,7 +49,7 @@ function syncFiducial(element, measurementData, command) {
             }
             else if (command === 'remove') {
                 $(ele).off('cornerstonemeasurementremoved');
-                removeFiducail(ele, measurementData);
+                removeFiducail(element, ele, measurementData);
                 bindToMeasurementRemoved(ele);
             }
         }
@@ -51,7 +59,6 @@ function syncFiducial(element, measurementData, command) {
 function bindToMeasurementAdded(element) {
     $(element).bind('cornerstonetoolsmeasurementadded', (eve) => {
         let ev = eve.originalEvent;
-        // console.log(cornerstone.getImage(ev.target));
         if (ev.detail.toolType === 'probe') {
             addFiducialData(ev.target, ev.detail.measurementData);
         }
@@ -76,6 +83,21 @@ $('.imageViewerViewport').waitUntilExists((index, element) => {
             $(this).off('mouseup').one('mouseup', () => {
                 removeFiducialData(ev.target, ev.detail.measurementData);
             });
+        }
+    });
+});
+
+$('.toolbarSectionTools').waitUntilExists((index, element) => {
+    $(element).children().bind('click', (ev) => {
+        const activeTool = ev.currentTarget.id;
+        if (activeTool === 'probe') {
+            $('.imageViewerViewport').each((index, ele) => {
+                cornerstoneTools.scrollToIndex(ele, 0);
+                probeSynchronizer.add(ele);
+            });
+        }
+        else if (probeSynchronizer) {
+            probeSynchronizer.destroy();
         }
     });
 });
