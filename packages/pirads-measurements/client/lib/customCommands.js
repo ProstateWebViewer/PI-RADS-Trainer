@@ -7,6 +7,27 @@ fiducials = new Mongo.Collection('fiducials', {connection: null});
 const probeSynchronizer = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.stackImagePositionSynchronizer);
 let fiducialCounter = 0;
 
+function imagePointToPatientPoint (imagePoint, imagePlane) {
+    const x = imagePlane.rowCosines.clone().multiplyScalar(imagePoint.x);
+    x.multiplyScalar(imagePlane.columnPixelSpacing);
+
+    const y = imagePlane.columnCosines.clone().multiplyScalar(imagePoint.y);
+    y.multiplyScalar(imagePlane.rowPixelSpacing);
+
+    const patientPoint = x.add(y);
+    patientPoint.add(imagePlane.imagePositionPatient);
+
+    return patientPoint;
+}
+
+function projectPatientPointToImagePlane (patientPoint, imagePlane) {
+    const point = patientPoint.clone().sub(imagePlane.imagePositionPatient);
+    const x = imagePlane.rowCosines.dot(point) / imagePlane.columnPixelSpacing;
+    const y = imagePlane.columnCosines.dot(point) / imagePlane.rowPixelSpacing;
+
+    return {x, y};
+}
+
 function addFiducialData(element, data) {
     fiducialCounter++;
     fiducials.insert({'measurementNumber': fiducialCounter, 'data': data, '_id': fiducialCounter.toString(), 'x': Math.round(data.handles.end.x), 'y': Math.round(data.handles.end.y)});
@@ -23,19 +44,31 @@ function removeFiducialData(element, data) {
     syncFiducial(element, data, 'remove');
 }
 
-function addFiducail(element, measurementData) {
-    cornerstoneTools.addToolState(element, 'probe', measurementData);
-    cornerstone.updateImage(element);
+function addFiducail(targetElement, sourceElement, measurementData) {
+    const image = cornerstone.getEnabledElement(sourceElement).image;
+    const imagePlane = cornerstone.metaData.get('imagePlaneModule', image.imageId);
+    const patientPoint = imagePointToPatientPoint(measurementData.handles.end, imagePlane);
+
+    const TargetImage = cornerstone.getEnabledElement(targetElement).image;
+    const TargetImagePlane = cornerstone.metaData.get('imagePlaneModule', TargetImage.imageId);
+    imagePoint = projectPatientPointToImagePlane(patientPoint, TargetImagePlane);
+    let newMeasurementData = $.extend(true, {}, measurementData);
+
+    newMeasurementData.handles.end.x = imagePoint.x
+    newMeasurementData.handles.end.y = imagePoint.y
+
+    cornerstoneTools.addToolState(targetElement, 'probe', newMeasurementData);
+    cornerstone.updateImage(targetElement);
 }
 
-function removeFiducail(targetElement, element, measurementData) {
-    cornerstoneTools.clearToolState(element, 'probe');
-    cornerstone.updateImage(element);
-    fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(targetElement, 'probe')['data'];
+function removeFiducail(targetElement, sourceElement, measurementData) {
+    cornerstoneTools.clearToolState(targetElement, 'probe');
+    cornerstone.updateImage(targetElement);
+    fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(sourceElement, 'probe')['data'];
     fiducialArray.forEach((val) => {
-        $(element).off('cornerstonetoolsmeasurementadded');
-        addFiducail(element, val);
-        bindToMeasurementAdded(element);
+        $(targetElement).off('cornerstonetoolsmeasurementadded');
+        addFiducail(targetElement, sourceElement, val);
+        bindToMeasurementAdded(targetElement);
     });
 }
 
@@ -44,12 +77,12 @@ function syncFiducial(element, measurementData, command) {
         if (element !== ele) {
             if (command === 'add') {
                 $(ele).off('cornerstonetoolsmeasurementadded');
-                addFiducail(ele, measurementData);
+                addFiducail(ele, element, measurementData);
                 bindToMeasurementAdded(ele);
             }
             else if (command === 'remove') {
                 $(ele).off('cornerstonemeasurementremoved');
-                removeFiducail(element, ele, measurementData);
+                removeFiducail(ele, element, measurementData);
                 bindToMeasurementRemoved(ele);
             }
         }
