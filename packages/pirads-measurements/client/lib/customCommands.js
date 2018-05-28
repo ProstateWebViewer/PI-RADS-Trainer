@@ -100,11 +100,89 @@ function syncFiducial(element, measurementData, command) {
     });
 }
 
+function temp(element, measurementData) {
+    fiducialCounter++;
+    const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
+    // const viewportIndex = Session.get('activeViewport');
+
+    // cornerstoneTools.clearToolState(element, 'probe');
+    cornerstoneTools.removeToolState(element, 'probe', measurementData);
+    cornerstone.updateImage(element);
+
+    const patientPoint = getPatientPoint(measurementData.handles.end, element);
+    let imageIds = [];
+
+    $('.imageViewerViewport').each((index, ele) => {
+        let elementSpecificMeasurementData = $.extend(true, {}, measurementData);
+        const imagePoint = getImagePoint(patientPoint, ele);
+        elementSpecificMeasurementData.handles.end.x = imagePoint.x;
+        elementSpecificMeasurementData.handles.end.y = imagePoint.y;
+        elementSpecificMeasurementData.id = fiducialCounter;
+
+        $(ele).off('cornerstonetoolsmeasurementadded');
+        cornerstoneTools.addToolState(ele, 'probe', elementSpecificMeasurementData);
+        cornerstone.updateImage(ele);
+        bindToMeasurementAdded(ele);
+
+        imageIds.push(cornerstone.getEnabledElement(ele).image.imageId);
+    });
+
+    let fiducial = {
+      'id': fiducialCounter,
+      'studyInstanceUid': studyInstanceUid,
+      'imageIds': imageIds,
+      'patientPoint': patientPoint
+    }
+
+    console.log(fiducial);
+
+    fiducialsCollection.insert(fiducial);
+
+    // console.log(fiducial);
+    // console.log(getImagePoint(patientPoint, element));
+
+
+    //
+    // console.log(newMeasurementData);
+
+    //
+    // const imageId = cornerstone.getEnabledElement(element).image.imageId;
+    // cornerstoneTools.globalImageIdSpecificToolStateManager.add(element, 'probe', newMeasurementData);
+    // const fake = "dicomweb:/__wado_proxy?url=http%3A%2F%2Flocalhost%3A8042%2Fwado%3FrequestType%3DWADO%26studyUID%3D1.3.6.1.4.1.14519.5.2.1.7311.5101.150791303362252713857195678620%26seriesUID%3D1.3.6.1.4.1.14519.5.2.1.7311.5101.236665665465030567828618311919%26objectUID%3D1.3.6.1.4.1.14519.5.2.1.7311.5101.699020574203929235799715772336%26contentType%3Dapplication%252Fdicom%26transferSyntax%3D*&serverId=THwFQ5Tqs8bpqM8C2";
+    // const toolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(imageId);
+    // cornerstoneTools.globalImageIdSpecificToolStateManager.restoreImageIdToolState(fake, toolState)
+
+    // fiducialsCollection.insert(newMeasurementData);
+
+
+    // console.log(cornerstoneTools.getToolState(element, 'probe'));
+    // console.log(cornerstoneTools.getToolState(element, 'stackRenderer'));
+
+
+    // $(element).off('cornerstonetoolsmeasurementadded');
+    // cornerstoneTools.addToolState(element, 'probe', newMeasurementData);
+    // cornerstone.updateImage(element);
+    // bindToMeasurementAdded(element);
+
+    // console.log(cornerstoneTools.getToolState(element, 'probe'));
+
+
+
+    // cornerstone.enable(element);
+
+    // cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(imageId);
+    // console.log(cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState());
+    // console.log(cornerstoneTools.getToolState(element, 'probe'));
+    // cornerstone.updateImage(saveImageIdToolState (imageId));
+
+}
+
 function bindToMeasurementAdded(element) {
     $(element).bind('cornerstonetoolsmeasurementadded', (eve) => {
         let ev = eve.originalEvent;
         if (ev.detail.toolType === 'probe') {
-            addFiducialData(ev.target, ev.detail.measurementData);
+            temp(ev.target, ev.detail.measurementData);
+            // addFiducialData(ev.target, ev.detail.measurementData);
         }
     });
 }
@@ -120,21 +198,21 @@ function bindToMeasurementRemoved(element) {
 
 $('.imageViewerViewport').waitUntilExists((index, element) => {
     bindToMeasurementAdded(element);
-    bindToMeasurementRemoved(element);
-    $(element).bind('cornerstonetoolsmeasurementmodified', (eve) => {
-        let ev = eve.originalEvent;
-        if (ev.detail.toolType === 'probe') {
-            $(this).off('mouseup').one('mouseup', () => {
-                // const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
-                // fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(ev.target, 'probe')['data'].map(val => val['handles']);
-                // fiducialArray.forEach((val) => {
-                //     fiducialList = fiducialsCollection.find({ 'data': { 'handles': { 'end': { 'x': val['end']['x'], 'y': val['end']['y'] } } }, 'studyInstanceUid': studyInstanceUid }).fetch();
-                //     console.log(fiducialList);
-                //     // console.log(val['end']);
-                // });
-            });
-        }
-    });
+    // bindToMeasurementRemoved(element);
+    // $(element).bind('cornerstonetoolsmeasurementmodified', (eve) => {
+    //     let ev = eve.originalEvent;
+    //     if (ev.detail.toolType === 'probe') {
+    //         $(this).off('mouseup').one('mouseup', () => {
+    //             const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
+    //             fiducialArray = cornerstoneTools.globalImageIdSpecificToolStateManager.get(ev.target, 'probe')['data'].map(val => val['handles']);
+    //             fiducialArray.forEach((val) => {
+    //                 fiducialList = fiducialsCollection.find({ 'data': { 'handles': { 'end': { 'x': val['end']['x'], 'y': val['end']['y'] } } }, 'studyInstanceUid': studyInstanceUid }).fetch();
+    //                 console.log(fiducialList);
+    //                 // console.log(val['end']);
+    //             });
+    //         });
+    //     }
+    // });
 });
 
 $('.toolbarSectionTools').waitUntilExists((index, element) => {

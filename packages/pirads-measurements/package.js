@@ -1,5 +1,5 @@
 Package.describe({
-    name: 'pirads:measurements',
+    name: 'pirads:core',
     summary: 'Configuring OHIF for PIRADS Trainer',
     version: '1.0.0'
 });
@@ -10,7 +10,7 @@ Npm.depends({
 
 Package.onUse(function(api) {
     api.versionsFrom('1.4');
-    
+
     api.use('ecmascript');
     api.use('standard-app-packages');
     api.use('jquery');
