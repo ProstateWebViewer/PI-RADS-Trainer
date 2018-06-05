@@ -1,0 +1,42 @@
+@import "{ohif:design}/app"
+
+#title
+  h3
+    theme('color', '$defaultColor')
+
+#fiducial-list
+  width: 100%
+  height: calc(100% - 156px)
+  overflow-y: scroll
+  padding: 15px
+  p
+  h2
+  h3
+  h4
+    theme('color', '$defaultColor')
+  label
+    theme('color', '$defaultColor')
+    margin-top: 6px
+  &::-webkit-scrollbar-track
+      -webkit-box-shadow inset 0 0 6px rgba(0,0,0,0.3)
+      -moz-box-shadow inset 0 0 6px rgba(0,0,0,0.3)
+      box-shadow inset 0 0 6px rgba(0,0,0,0.3)
+      background-color rgba(0,0,0,1)
+  &::-webkit-scrollbar
+      width 14px
+      background-color #F5F5F5
+  &::-webkit-scrollbar-thumb
+      border-radius 10px
+      background-color #12373D
+
+.report-area
+  theme('background-color', '$uiGrayDarker')
+  margin-top: 2px
+  padding: 10px 0
+
+  .btn
+    theme('background-color', '$activeColor')
+    theme('border', '1px solid $uiBorderColorActive')
+    color: #000
+    display: table
+    margin: 0 auto

@@ -617,11 +617,11 @@ Template.imageViewerViewport.onRendered(function() {
         });
     }
 
-    const doubleClickEvents = ['cornerstonetoolsmousedoubleclick', 'cornerstonetoolsdoubletap'];
-    doubleClickEvents.forEach(eventType => {
-        element.removeEventListener(eventType, doubleClickHandler);
-        element.addEventListener(eventType, doubleClickHandler);
-    });
+    // const doubleClickEvents = ['cornerstonetoolsmousedoubleclick', 'cornerstonetoolsdoubletap'];
+    // doubleClickEvents.forEach(eventType => {
+    //     element.removeEventListener(eventType, doubleClickHandler);
+    //     element.addEventListener(eventType, doubleClickHandler);
+    // });
 });
 
 Template.imageViewerViewport.onDestroyed(function() {
