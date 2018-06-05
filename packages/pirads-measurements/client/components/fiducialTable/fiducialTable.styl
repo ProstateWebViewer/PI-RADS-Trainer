@@ -1,148 +1,33 @@
 @import "{ohif:design}/app"
 
-$height = 20px
+#title
+  h3
+    theme('color', '$defaultColor')
 
-#fiducialEditor
-  theme('background', '$primaryBackgroundColor')
-  width: 450px
-  padding-bottom: 10px
-  padding-top: 0
-  position: absolute
-  top: 0
-
-  .navigationButtonsContainer
-    margin-left: 0
-    margin-right: 0
-
-    .navigationButtons
-      ul
-        margin: 0 auto
-        width: 300px
-
-      li
-        text-align: center
-        width: 150px
-        margin: 0
-
-        &:first-child:not(:last-child)
-          a
-            border-top-right-radius: 0
-            border-bottom-right-radius: 0
-
-        &:last-child:not(:first-child)
-          a
-            border-top-left-radius: 0
-            border-bottom-left-radius: 0
-
-        a
-          padding: 3px 9px
-          cursor: pointer
-          text-decoration: none
-          outline: none
-          theme('background-color', '$uiGrayDark')
-          theme('border', '2px solid $uiBorderColorDark')
-          theme('color', '$textSecondaryColor')
-          transition: transition($sidebarTransition)
-          border-radius: $height
-
-        &.active a
-          theme('background-color', '$activeColor')
-          theme('border-color', '$uiBorderColorActive')
-          theme('color', '$textColorActive')
-          transition: transition($sidebarTransition)
-
+#fiducial-list
+  width: 100%
+  height: calc(100% - 156px)
+  overflow-y: scroll
+  padding: 15px
   p
   h2
   h3
   h4
     theme('color', '$defaultColor')
-
   label
-  ul
     theme('color', '$defaultColor')
-    font-weight: 400
-
-  label
-    margin-right: 10px
-    width: 25%
-
-  input[type='number']
-  input[type='text']
-    min-width: 50px
-    width: 40%
-    border: none
-    background: #212121
-    theme('color', '$defaultColor')
-    text-align: center
-
-  button.btn
-    background: #ffffff
-    color: #3e3e3e
-
-  .fiducialEditorSection
-    padding: 10px
-    margin: 10px 0
-
-  #fiducialOptions
-    text-align: center
-    position: absolute
-    bottom: 0
-    width: 100%
-    margin-bottom: 0
-    theme('background', '$uiGrayDarker')
-
-    p
-      font-size: 8pt
-      theme('color', '$defaultColor')
-      margin: 0 10px
-      display: inline-block
-
-  #editfiducial
-    padding-top: 0
-    margin-top: 0
-    padding-right: 16px
-    padding-left: 20px
-    margin-right: -16px
-    width: 100%
-
-  #selectfiducial
-    text-align: center
-
-    .btn-file
-      position: relative
-      overflow: hidden
-
-    .btn-file input[type=file]
-      position: absolute
-      top: 0
-      right: 0
-      min-width: 100%
-      min-height: 100%
-      font-size: 100px
-      text-align: right
-      filter: 'alpha(opacity=0)'
-      opacity: 0
-      outline: none
-      background: white
-      cursor: inherit
-      display: block
-
-    .fiducialDropdown
-      display: inline-block
-
-      ul
-        li
-          a
-            cursor: pointer
-
-  #activeViewportEditor
-    padding: 10px
-
-    .noActiveViewport
-      padding: 40px
-
-      h3
-        theme('color', '$defaultColor')
+    margin-top: 6px
+  &::-webkit-scrollbar-track
+      -webkit-box-shadow inset 0 0 6px rgba(0,0,0,0.3)
+      -moz-box-shadow inset 0 0 6px rgba(0,0,0,0.3)
+      box-shadow inset 0 0 6px rgba(0,0,0,0.3)
+      background-color rgba(0,0,0,1)
+  &::-webkit-scrollbar
+      width 14px
+      background-color #F5F5F5
+  &::-webkit-scrollbar-thumb
+      border-radius 10px
+      background-color #12373D
 
 .report-area
   theme('background-color', '$uiGrayDarker')
