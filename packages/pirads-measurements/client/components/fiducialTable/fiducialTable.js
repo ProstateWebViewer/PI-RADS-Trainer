@@ -1,7 +1,10 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { OHIF } from 'meteor/ohif:core';
 import { cornerstoneTools } from 'meteor/ohif:cornerstone';
 import '../../lib/customCommands.js'
+
+Fiducials = new Mongo.Collection('fiducials');
 
 var zoneDecoder = function (sectorName)
 {
@@ -135,7 +138,7 @@ function displayGroundTruth() {
 
 Template.fiducialTable.onCreated(() => {
   const instance = Template.instance();
-
+  Meteor.subscribe('fiducials.public');
 });
 
 Template.fiducialTable.helpers({
@@ -151,7 +154,35 @@ Template.fiducialTable.helpers({
 
 Template.fiducialTable.events({
   'click .js-save'(event, instance) {
+    patientName = instance.data.studies[0].patientName
     //OHIF.ui.showDialog('feedbackModal');
-    displayGroundTruth(instance);
+    // displayGroundTruth(instance);
+    const fiducials = Fiducials.find({ ProxID: patientName }).fetch();
+    const element = $('.imageViewerViewport')[0];
+    const image = cornerstone.getEnabledElement(element).image;
+    const imagePlane = cornerstone.metaData.get('imagePlaneModule', image.imageId);
+
+    fiducials.forEach((val) => {
+      let patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
+      const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
+      const probe = {
+        'visible': true,
+        'active': true,
+        'color': 'red',
+        'invalidated': true,
+        'handles': {
+          'end': {
+            'active': true,
+            'highlight': true,
+            'x': imagePoint.x,
+            'y': imagePoint.y
+          }
+        }
+      }
+      // console.log(probe);
+      cornerstoneTools.addToolState(element, 'probe', probe);
+    });
+    //
+    // console.log(fiducial);
   }
 });

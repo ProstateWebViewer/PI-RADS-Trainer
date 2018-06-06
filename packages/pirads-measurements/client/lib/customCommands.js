@@ -40,6 +40,7 @@ function addFiducial(element, measurementData) {
     cornerstone.updateImage(element);
 
     const patientPoint = getPatientPoint(measurementData.handles.end, element);
+    console.log(measurementData);
     let imageIds = [];
 
     $('.imageViewerViewport').each((index, ele) => {

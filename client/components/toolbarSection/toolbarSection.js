@@ -160,7 +160,9 @@ Template.toolbarSection.helpers({
             id: 'crosshairs',
             title: 'Sync',
             classes: 'imageViewerTool',
-            iconClasses: 'fa fa-refresh'
+            svgLink: '/icon/icons.svg#scroll'
+            // svgLink: '/icon/scroll.svg'
+            // iconClasses: 'fa fa-refresh'
         });
 
         buttonData.push({
