@@ -135,7 +135,7 @@ export const UISettings = new SimpleSchema({
     studyListFunctionsEnabled: {
         type: Boolean,
         label: 'Study List Functions Enabled?',
-        defaultValue: true
+        defaultValue: false
     },
     leftSidebarOpen: {
         type: Boolean,

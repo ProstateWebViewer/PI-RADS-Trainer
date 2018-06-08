@@ -21,7 +21,7 @@ if (Fiducials.find().count() === 0) {
         z: pos[2]
       },
       zone: data.zone,
-      ClinSig: data.ClingSig
+      ClinSig: (data.ClinSig == 'TRUE') ? true : false
     };
     Fiducials.insert(fiducial);
   })).on("end", function() {

@@ -6,7 +6,7 @@ import { waitUntilExists } from 'jquery.waituntilexists'
 
 fiducialsCollection = new Mongo.Collection('fiducialsCollection', {connection: null});
 const probeSynchronizer = new cornerstoneTools.Synchronizer('cornerstonenewimage', cornerstoneTools.stackImagePositionSynchronizer);
-let fiducialCounter = 0;
+let fiducialCounter = {};
 
 
 function getPatientPoint(imagePoint, element) {
@@ -33,22 +33,35 @@ function isInBoundary(element, coords) {
 
 // TODO: clean and comment for all the functions
 function addFiducial(element, measurementData) {
-    fiducialCounter++;
+
     const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
+    const studyInstanceUidString = studyInstanceUid.toString();
+
+    if (fiducialCounter.hasOwnProperty(studyInstanceUidString)) {
+        fiducialCounter[studyInstanceUidString]++;
+    }
+    else {
+        fiducialCounter[studyInstanceUidString] = 1;
+    }
 
     cornerstoneTools.removeToolState(element, 'probe', measurementData);
     cornerstone.updateImage(element);
 
     const patientPoint = getPatientPoint(measurementData.handles.end, element);
-    console.log(measurementData);
     let imageIds = [];
 
     $('.imageViewerViewport').each((index, ele) => {
         let elementSpecificMeasurementData = $.extend(true, {}, measurementData);
         const imagePoint = getImagePoint(patientPoint, ele);
+        const id = fiducialCounter[studyInstanceUidString]
+
+        if (measurementData.hasOwnProperty('server')) {
+            id = 'server.'.concat(measurementData.f_id);
+        }
+
         elementSpecificMeasurementData.handles.end.x = imagePoint.x;
         elementSpecificMeasurementData.handles.end.y = imagePoint.y;
-        elementSpecificMeasurementData.id = fiducialCounter;
+        elementSpecificMeasurementData.id = id;
         elementSpecificMeasurementData.active = false;
 
         if (isInBoundary(ele, elementSpecificMeasurementData.handles.end)) {
@@ -61,14 +74,21 @@ function addFiducial(element, measurementData) {
         }
     });
 
-    let fiducial = {
-      'id': fiducialCounter,
-      'studyInstanceUid': studyInstanceUid,
-      'imageIds': imageIds,
-      'patientPoint': patientPoint
-    }
+    if (!measurementData.hasOwnProperty('server')) {
+        let fiducial = {
+          'id': fiducialCounter[studyInstanceUidString],
+          'studyInstanceUid': studyInstanceUid,
+          'imageIds': imageIds,
+          'patientPoint': patientPoint
+        }
 
-    fiducialsCollection.insert(fiducial);
+        // console.log(patientPoint);
+
+        fiducialsCollection.insert(fiducial);
+    }
+    else {
+        fiducialCounter[studyInstanceUidString]--;
+    }
 }
 
 
@@ -161,8 +181,17 @@ $('.toolbarSectionTools').waitUntilExists((index, element) => {
     $(element).children().bind('click', (ev) => {
         const activeTool = ev.currentTarget.id;
         if (activeTool === 'probe') {
-            $('.imageViewerViewport').each((index, ele) => {
-                cornerstoneTools.scrollToIndex(ele, 0);
+            $('.imageViewerViewport').each(async (index, ele) => {
+                // TODO: not a good idea to wait till we scroll, see if there is a better way!
+                await function scroll() {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            cornerstoneTools.scrollToIndex(ele, 0);
+                            resolve('resolved');
+                        }, 1);
+                    });
+                }();
+
                 probeSynchronizer.add(ele);
             });
         }

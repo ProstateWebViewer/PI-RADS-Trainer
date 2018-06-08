@@ -2,6 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { OHIF } from 'meteor/ohif:core';
 import { cornerstoneTools } from 'meteor/ohif:cornerstone';
+import { ReactiveVar } from 'meteor/reactive-var'
+import { $ } from 'meteor/jquery';
 import '../../lib/customCommands.js'
 
 Fiducials = new Mongo.Collection('fiducials');
@@ -59,6 +61,104 @@ const list = {
 
 const prostateLabels = ["AS","TZa","PZa","TZp","PZpm","PZpl", "SV", "CZ", "Urethra"];
 
+
+function getImageId() {
+  var closest;
+  imageIds.forEach(function(imageId) {
+    var imagePlane = cornerstone.metaData.get('imagePlaneModule', imageId);
+    var imgPosZ = imagePlane.imagePositionPatient[2];
+    var distance = Math.abs(imgPosZ - imagePositionZ);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closest = imageId;
+    }
+  });
+
+  return closest;
+}
+
+function wait(ms) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve('resolved');
+    }, ms);
+  });
+}
+
+async function displayFiducials(instance) {
+  $('#probe').trigger("click");
+  await wait(1);
+
+  const patientName = instance.data.studies[0].patientName;
+  const fiducials = Fiducials.find({ ProxID: patientName }).fetch();
+  const element = $('.imageViewerViewport')[Session.get('activeViewport')];
+  const image = cornerstone.getEnabledElement(element).image;
+  const imagePlane = cornerstone.metaData.get('imagePlaneModule', image.imageId);
+  const sliceThickness = cornerstone.metaData.get('instance', image.imageId)['sliceThickness'];
+
+  // console.log(cornerstone.metaData.get('instance', image.imageId));
+  // console.log(imagePlane.imagePositionPatient.z);
+
+  fiducials.forEach(async (val, index) => {
+    // console.log(val.pos.z);
+    const imagaIndex = Math.floor(Math.abs(imagePlane.imagePositionPatient.z - val.pos.z)/sliceThickness) - 2;
+    const delay = 500;
+
+    function scroll() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          cornerstoneTools.scrollToIndex(element, imagaIndex);
+          resolve('resolved');
+        }, delay * (index + 1));
+      });
+    }
+
+    await scroll();
+    await wait((delay/2) * (index + 1));
+
+    // console.log(imagaIndex);
+    const patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
+
+    const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
+    fiducialsCollection.find({'studyInstanceUid': studyInstanceUid}).fetch().forEach((value) => {
+        console.log(patientPoint.distanceTo(value.patientPoint));
+    });
+
+    const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
+    const probe = {
+      'f_id': val.fid,
+      'server': true,
+      'visible': true,
+      'active': true,
+      'color': 'red',
+      'invalidated': true,
+      'handles': {
+        'end': {
+          'active': true,
+          'highlight': true,
+          'x': imagePoint.x,
+          'y': imagePoint.y
+        }
+      }
+    };
+    cornerstoneTools.addToolState(element, 'probe', probe);
+  });
+
+  $('#feedback-button').addClass('disabled');
+  $('#feedback-button').removeClass('js-save');
+
+  const ClinSigCounter = fiducials.filter(v => !v.ClinSig).length;
+
+  instance.feedbackString.set(fiducials.length.toString().concat(
+    (fiducials.length === 1) ? ' location was biopsied.' : ' locations were biopsied.',
+    '\n',
+    'With ' + ClinSigCounter + ' clinical significance.',
+    '\n\n',
+    (ClinSigCounter === 0) ? '' : 'From your fiducials:\n fiducial 1 is closest to cs1.\n\n\n\n\n\n\n\n\n\n lol',
+  ));
+  // alert(fiducials.length.toString() + ' locations were biopsied.');
+
+}
 
 function displayGroundTruth() {
   OHIF.viewer.pathologyInfo.find().forEach(info => {
@@ -138,6 +238,7 @@ function displayGroundTruth() {
 
 Template.fiducialTable.onCreated(() => {
   const instance = Template.instance();
+  instance.feedbackString = new ReactiveVar('');
   Meteor.subscribe('fiducials.public');
 });
 
@@ -149,40 +250,17 @@ Template.fiducialTable.helpers({
 
   prostateLabels() {
     return prostateLabels;
+  },
+
+  getFeedback() {
+    return Template.instance().feedbackString.get();
   }
 });
 
 Template.fiducialTable.events({
   'click .js-save'(event, instance) {
-    patientName = instance.data.studies[0].patientName
     //OHIF.ui.showDialog('feedbackModal');
     // displayGroundTruth(instance);
-    const fiducials = Fiducials.find({ ProxID: patientName }).fetch();
-    const element = $('.imageViewerViewport')[0];
-    const image = cornerstone.getEnabledElement(element).image;
-    const imagePlane = cornerstone.metaData.get('imagePlaneModule', image.imageId);
-
-    fiducials.forEach((val) => {
-      let patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
-      const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
-      const probe = {
-        'visible': true,
-        'active': true,
-        'color': 'red',
-        'invalidated': true,
-        'handles': {
-          'end': {
-            'active': true,
-            'highlight': true,
-            'x': imagePoint.x,
-            'y': imagePoint.y
-          }
-        }
-      }
-      // console.log(probe);
-      cornerstoneTools.addToolState(element, 'probe', probe);
-    });
-    //
-    // console.log(fiducial);
+    displayFiducials(instance);
   }
 });
