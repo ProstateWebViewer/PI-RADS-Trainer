@@ -1,7 +1,12 @@
+import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
 import { OHIF } from 'meteor/ohif:core';
 import { cornerstoneTools } from 'meteor/ohif:cornerstone';
+import { ReactiveVar } from 'meteor/reactive-var'
+import { $ } from 'meteor/jquery';
 import '../../lib/customCommands.js'
+
+Fiducials = new Mongo.Collection('fiducials');
 
 var zoneDecoder = function (sectorName)
 {
@@ -56,6 +61,134 @@ const list = {
 
 const prostateLabels = ["AS","TZa","PZa","TZp","PZpm","PZpl", "SV", "CZ", "Urethra"];
 
+
+function getImageId() {
+  var closest;
+  imageIds.forEach(function(imageId) {
+    var imagePlane = cornerstone.metaData.get('imagePlaneModule', imageId);
+    var imgPosZ = imagePlane.imagePositionPatient[2];
+    var distance = Math.abs(imgPosZ - imagePositionZ);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closest = imageId;
+    }
+  });
+
+  return closest;
+}
+
+function wait(ms) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve('resolved');
+    }, ms);
+  });
+}
+
+async function displayFiducials(instance) {
+  $('#probe').trigger("click");
+  await wait(1);
+
+  const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
+  const patientName = instance.data.studies[0].patientName;
+  const fiducials = Fiducials.find({ ProxID: patientName }).fetch();
+  const element = $('.imageViewerViewport')[Session.get('activeViewport')];
+  const image = cornerstone.getEnabledElement(element).image;
+  const imagePlane = cornerstone.metaData.get('imagePlaneModule', image.imageId);
+  const sliceThickness = cornerstone.metaData.get('instance', image.imageId)['sliceThickness'];
+
+  // console.log(cornerstone.metaData.get('instance', image.imageId));
+  // console.log(imagePlane.imagePositionPatient.z);
+
+  fiducials.forEach(async (val, index) => {
+    // console.log(val.pos.z);
+    const imagaIndex = Math.floor(Math.abs(imagePlane.imagePositionPatient.z - val.pos.z)/sliceThickness) - 2;
+    const delay = 500;
+
+    function scroll() {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          cornerstoneTools.scrollToIndex(element, imagaIndex);
+          resolve('resolved');
+        }, delay * (index + 1));
+      });
+    }
+
+    await scroll();
+    await wait((delay/2) * (index + 1));
+
+    // console.log(imagaIndex);
+    const patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
+
+    const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
+    const measurementData = {
+      'f_id': val.fid,
+      'ClinSig': val.ClinSig,
+      'server': true,
+      'visible': true,
+      'active': true,
+      'color': (val.ClinSig) ? '#ee6002' : '#90ee02',
+      'invalidated': true,
+      'handles': {
+        'end': {
+          'active': true,
+          'highlight': true,
+          'x': imagePoint.x,
+          'y': imagePoint.y
+        }
+      }
+    };
+    cornerstoneTools.addToolState(element, 'probe', measurementData);
+  });
+
+  $('#feedback-button').addClass('disabled');
+  $('#feedback-button').removeClass('js-save');
+
+  function findingsAnalysis() {
+
+    let str = '';
+
+    fiducials.forEach((val) => {
+      const minDistance = Number.MAX_SAFE_INTEGER;
+      const f_id = 0;
+      const patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
+      fiducialsCollection.find({'studyInstanceUid': studyInstanceUid}).fetch().forEach((value) => {
+          const distance = patientPoint.distanceTo(value.patientPoint).toFixed(2)
+          if (distance < minDistance) {
+            minDistance = distance;
+            f_id = value.id;
+          }
+      });
+      if (f_id) {
+        str = str.concat(
+          'fid '+ f_id + ' is closest to ',
+          (val.ClinSig) ? 'CS-' + val.fid : 'CNS-' + val.fid,
+          ' with ' + minDistance + ' mm\n'
+        );
+      }
+    });
+
+    return str;
+  }
+
+  const ClinSigCounter = fiducials.filter(v => v.ClinSig).length;
+
+  instance.feedbackString.set(''.concat(
+    'An expert radiologist indicated ',
+    fiducials.length.toString(),
+    (fiducials.length === 1) ? ' area ' : ' areas ',
+    'of suspicion for this patient, and the patient underwent MR-guidance biopsies.\n\n',
+    'Biopsy results:\n',
+    ClinSigCounter,
+    ' clinical significant',
+    (ClinSigCounter === 1) ? ' finding ' : ' findings ',
+    '(Gleason score 7 or higher) were identified by a philologist.\n\n',
+    'Analysis of your findings:\n',
+    findingsAnalysis(),
+  ));
+  // alert(fiducials.length.toString() + ' locations were biopsied.');
+
+}
 
 function displayGroundTruth() {
   OHIF.viewer.pathologyInfo.find().forEach(info => {
@@ -135,7 +268,8 @@ function displayGroundTruth() {
 
 Template.fiducialTable.onCreated(() => {
   const instance = Template.instance();
-
+  instance.feedbackString = new ReactiveVar('');
+  Meteor.subscribe('fiducials.public');
 });
 
 Template.fiducialTable.helpers({
@@ -146,12 +280,17 @@ Template.fiducialTable.helpers({
 
   prostateLabels() {
     return prostateLabels;
+  },
+
+  getFeedback() {
+    return Template.instance().feedbackString.get();
   }
 });
 
 Template.fiducialTable.events({
   'click .js-save'(event, instance) {
     //OHIF.ui.showDialog('feedbackModal');
-    displayGroundTruth(instance);
+    // displayGroundTruth(instance);
+    displayFiducials(instance);
   }
 });

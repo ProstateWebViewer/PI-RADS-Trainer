@@ -61,71 +61,6 @@ Template.toolbarSection.helpers({
 
     toolbarButtons() {
         const extraTools = [];
-
-        extraTools.push({
-            id: 'magnify',
-            title: 'Magnify',
-            classes: 'imageViewerTool toolbarSectionButton',
-            iconClasses: 'fa fa-circle'
-        });
-
-        extraTools.push({
-            id: 'wwwcRegion',
-            title: 'ROI Window',
-            classes: 'imageViewerTool',
-            iconClasses: 'fa fa-square'
-        });
-
-        extraTools.push({
-            id: 'ellipticalRoi',
-            title: 'Ellipse',
-            classes: 'imageViewerTool',
-            iconClasses: 'fa fa-circle-o'
-        });
-
-        extraTools.push({
-            id: 'toggleDownloadDialog',
-            title: 'Download',
-            classes: 'imageViewerCommand',
-            iconClasses: 'fa fa-camera',
-            active: () => $('#downloadDialog').is(':visible')
-        });
-
-        extraTools.push({
-            id: 'invert',
-            title: 'Invert',
-            classes: 'imageViewerCommand',
-            iconClasses: 'fa fa-adjust'
-        });
-
-        extraTools.push({
-            id: 'rotateR',
-            title: 'Rotate Right',
-            classes: 'imageViewerCommand',
-            svgLink: '/packages/ohif_viewerbase/assets/icons.svg#icon-tools-rotate-right'
-        });
-
-        extraTools.push({
-            id: 'flipH',
-            title: 'Flip H',
-            classes: 'imageViewerCommand',
-            svgLink: '/packages/ohif_viewerbase/assets/icons.svg#icon-tools-flip-horizontal'
-        });
-
-        extraTools.push({
-            id: 'flipV',
-            title: 'Flip V',
-            classes: 'imageViewerCommand',
-            svgLink: '/packages/ohif_viewerbase/assets/icons.svg#icon-tools-flip-vertical'
-        });
-
-        extraTools.push({
-            id: 'clearTools',
-            title: 'Clear',
-            classes: 'imageViewerCommand',
-            iconClasses: 'fa fa-trash'
-        });
-
         const buttonData = [];
 
         buttonData.push({
@@ -158,8 +93,10 @@ Template.toolbarSection.helpers({
 
         buttonData.push({
             id: 'crosshairs',
-            title: 'Sync',
+            title: 'Scroll Sync',
             classes: 'imageViewerTool',
+            // svgLink: '/icon/icons.svg#scroll'
+            // svgLink: '/icon/scroll.svg'
             iconClasses: 'fa fa-refresh'
         });
 
@@ -184,19 +121,47 @@ Template.toolbarSection.helpers({
             svgLink: '/packages/ohif_viewerbase/assets/icons.svg#icon-tools-measure-non-target'
         });
 
+        // buttonData.push({
+        //     id: 'layout',
+        //     title: 'Layout',
+        //     iconClasses: 'fa fa-th-large',
+        //     buttonTemplateName: 'layoutButton'
+        // });
+
         buttonData.push({
-            id: 'layout',
-            title: 'Layout',
-            iconClasses: 'fa fa-th-large',
-            buttonTemplateName: 'layoutButton'
+            id: 'magnify',
+            title: 'Magnify',
+            classes: 'imageViewerTool toolbarSectionButton',
+            iconClasses: 'fa fa-circle'
         });
 
         buttonData.push({
-            id: 'toggleMore',
-            title: 'More',
-            classes: 'rp-x-1 rm-l-3',
-            svgLink: '/packages/ohif_viewerbase/assets/icons.svg#icon-tools-more',
-            subTools: extraTools
+            id: 'wwwcRegion',
+            title: 'ROI Window',
+            classes: 'imageViewerTool',
+            iconClasses: 'fa fa-square'
+        });
+
+        buttonData.push({
+            id: 'ellipticalRoi',
+            title: 'Ellipse',
+            classes: 'imageViewerTool',
+            iconClasses: 'fa fa-circle-o'
+        });
+
+        buttonData.push({
+            id: 'toggleDownloadDialog',
+            title: 'Snapshot',
+            classes: 'imageViewerCommand',
+            iconClasses: 'fa fa-camera',
+            active: () => $('#downloadDialog').is(':visible')
+        });
+
+        buttonData.push({
+            id: 'invert',
+            title: 'Invert',
+            classes: 'imageViewerCommand',
+            iconClasses: 'fa fa-adjust'
         });
 
         return buttonData;
