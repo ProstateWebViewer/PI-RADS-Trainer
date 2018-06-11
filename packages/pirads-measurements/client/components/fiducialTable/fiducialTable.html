@@ -1,19 +1,17 @@
 <template name="fiducialTable">
 
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="text-center" id='title'>
-        <h3>Fiducials</h3>
-      </div>
-      <hr class="no-bottom-margin">
-    </div>
+
+  <div class="text-center" id='title'>
+    <h3>Findings</h3>
   </div>
+  <hr class="no-bottom-margin">
+
 
   <div id="fiducial-list">
     {{ #each rowItem in fiducials }}
     <div class="row">
         <div class="col-xs-12">
-          <h4>Fiducial {{ rowItem.id }}</h4>
+          <h4>Finding {{ rowItem.id }}</h4>
         </div>
     </div>
     <br>
@@ -85,11 +83,18 @@
         </form>
       </div>
     </div>
-    <hr>
+    <hr class="no-top-margin">
     {{ /each }}
   </div>
-
-  <hr>
+  <hr class="no-margin">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="text-center" id='title'>
+        <h3>Result</h3>
+      </div>
+      <hr>
+    </div>
+  </div>
   <div id="feedback-section" class="">
     <pre>{{ getFeedback }}</pre>
   </div>

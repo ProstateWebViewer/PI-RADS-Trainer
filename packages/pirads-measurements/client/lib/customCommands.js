@@ -31,6 +31,66 @@ function isInBoundary(element, coords) {
     return 0 <= coords.x && coords.x <= width && coords.y <= height && 0 <= coords.y;
 }
 
+function drawId(e) {
+  const eventData = e.detail;
+
+  // If we have no toolData for this element, return immediately as there is nothing to do
+  const toolData = cornerstoneTools.getToolState(e.currentTarget, 'probe');
+
+  if (!toolData) {
+    return;
+  }
+
+  // We have tool data for this element - iterate over each one and draw it
+  const context = eventData.canvasContext.canvas.getContext('2d');
+
+  context.setTransform(1, 0, 0, 1, 0, 0);
+
+  const font = cornerstoneTools.textStyle.getFont();
+  const fontHeight = cornerstoneTools.textStyle.getFontSize();
+
+  for (let i = 0; i < toolData.data.length; i++) {
+    context.save();
+    const data = toolData.data[i];
+
+    if (data.visible === false) {
+      continue;
+    }
+
+    const color = cornerstoneTools.toolColors.getColorIfActive(data);
+
+    const x = Math.round(data.handles.end.x);
+    const y = Math.round(data.handles.end.y);
+    let storedPixels;
+    let text;
+
+    if (!data.hasOwnProperty('server')) {
+      text = 'fid ' + data.id;
+    }
+    else {
+      const id = data.id.split('.')[1];
+      text = (data.ClinSig) ? 'Clinical Significant (CS-' + id + ')' : 'Clinical Not Significant (CNS-' + id + ')';
+    }
+
+    if (x < 0 || y < 0 || x >= eventData.image.columns || y >= eventData.image.rows) {
+      return;
+    }
+
+    const coords = {
+      // Translate the x/y away from the cursor
+      x: data.handles.end.x + 3,
+      y: data.handles.end.y - 3
+    };
+    const textCoords = cornerstone.pixelToCanvas(eventData.element, coords);
+
+    context.font = font;
+    context.fillStyle = color;
+
+    cornerstoneTools.drawTextBox(context, text, textCoords.x, textCoords.y - fontHeight - 5, color);
+    context.restore();
+  }
+}
+
 // TODO: clean and comment for all the functions
 function addFiducial(element, measurementData) {
 
@@ -51,6 +111,7 @@ function addFiducial(element, measurementData) {
     let imageIds = [];
 
     $('.imageViewerViewport').each((index, ele) => {
+
         let elementSpecificMeasurementData = $.extend(true, {}, measurementData);
         const imagePoint = getImagePoint(patientPoint, ele);
         const id = fiducialCounter[studyInstanceUidString]
@@ -65,12 +126,12 @@ function addFiducial(element, measurementData) {
         elementSpecificMeasurementData.active = false;
 
         if (isInBoundary(ele, elementSpecificMeasurementData.handles.end)) {
-          $(ele).off('cornerstonetoolsmeasurementadded');
-          cornerstoneTools.addToolState(ele, 'probe', elementSpecificMeasurementData);
-          cornerstone.updateImage(ele);
-          bindToMeasurementAdded(ele);
+            $(ele).off('cornerstonetoolsmeasurementadded');
+            cornerstoneTools.addToolState(ele, 'probe', elementSpecificMeasurementData);
+            cornerstone.updateImage(ele);
+            bindToMeasurementAdded(ele);
 
-          imageIds.push(cornerstone.getEnabledElement(ele).image.imageId);
+            imageIds.push(cornerstone.getEnabledElement(ele).image.imageId);
         }
     });
 
@@ -139,7 +200,7 @@ function modifyFiducial(element, measurementData) {
 
 
 function bindToMeasurementAdded(element) {
-    $(element).bind('cornerstonetoolsmeasurementadded', (eve) => {
+    $(element).on('cornerstonetoolsmeasurementadded', (eve) => {
         let ev = eve.originalEvent;
         if (ev.detail.toolType === 'probe') {
             addFiducial(ev.target, ev.detail.measurementData);
@@ -149,7 +210,7 @@ function bindToMeasurementAdded(element) {
 
 
 function bindToMeasurementRemoved(element) {
-    $(element).bind('cornerstonemeasurementremoved', (eve) => {
+    $(element).on('cornerstonemeasurementremoved', (eve) => {
         let ev = eve.originalEvent;
         if (ev.detail.toolType === 'probe') {
             removeFiducial(ev.target, ev.detail.measurementData);
@@ -159,7 +220,7 @@ function bindToMeasurementRemoved(element) {
 
 
 function bindToMeasurementModified(element) {
-    $(element).bind('cornerstonetoolsmeasurementmodified', (eve) => {
+    $(element).on('cornerstonetoolsmeasurementmodified', (eve) => {
         let ev = eve.originalEvent;
         if (ev.detail.toolType === 'probe') {
             $(this).off('mouseup').one('mouseup', () => {
@@ -178,11 +239,14 @@ $('.imageViewerViewport').waitUntilExists((index, element) => {
 
 
 $('.toolbarSectionTools').waitUntilExists((index, element) => {
-    $(element).children().bind('click', (ev) => {
+    $(element).children().on('click', (ev) => {
         const activeTool = ev.currentTarget.id;
         if (activeTool === 'probe') {
             $('.imageViewerViewport').each(async (index, ele) => {
                 // TODO: not a good idea to wait till we scroll, see if there is a better way!
+                $(ele).on('cornerstoneimagerendered', (e) => {
+                    drawId(e.originalEvent);
+                });
                 await function scroll() {
                     return new Promise((resolve) => {
                         setTimeout(() => {

@@ -89,6 +89,7 @@ async function displayFiducials(instance) {
   $('#probe').trigger("click");
   await wait(1);
 
+  const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
   const patientName = instance.data.studies[0].patientName;
   const fiducials = Fiducials.find({ ProxID: patientName }).fetch();
   const element = $('.imageViewerViewport')[Session.get('activeViewport')];
@@ -119,18 +120,14 @@ async function displayFiducials(instance) {
     // console.log(imagaIndex);
     const patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
 
-    const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
-    fiducialsCollection.find({'studyInstanceUid': studyInstanceUid}).fetch().forEach((value) => {
-        console.log(patientPoint.distanceTo(value.patientPoint));
-    });
-
     const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
-    const probe = {
+    const measurementData = {
       'f_id': val.fid,
+      'ClinSig': val.ClinSig,
       'server': true,
       'visible': true,
       'active': true,
-      'color': 'red',
+      'color': (val.ClinSig) ? '#ee6002' : '#90ee02',
       'invalidated': true,
       'handles': {
         'end': {
@@ -141,20 +138,53 @@ async function displayFiducials(instance) {
         }
       }
     };
-    cornerstoneTools.addToolState(element, 'probe', probe);
+    cornerstoneTools.addToolState(element, 'probe', measurementData);
   });
 
   $('#feedback-button').addClass('disabled');
   $('#feedback-button').removeClass('js-save');
 
-  const ClinSigCounter = fiducials.filter(v => !v.ClinSig).length;
+  function findingsAnalysis() {
 
-  instance.feedbackString.set(fiducials.length.toString().concat(
-    (fiducials.length === 1) ? ' location was biopsied.' : ' locations were biopsied.',
-    '\n',
-    'With ' + ClinSigCounter + ' clinical significance.',
-    '\n\n',
-    (ClinSigCounter === 0) ? '' : 'From your fiducials:\n fiducial 1 is closest to cs1.\n\n\n\n\n\n\n\n\n\n lol',
+    let str = '';
+
+    fiducials.forEach((val) => {
+      const minDistance = Number.MAX_SAFE_INTEGER;
+      const f_id = 0;
+      const patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
+      fiducialsCollection.find({'studyInstanceUid': studyInstanceUid}).fetch().forEach((value) => {
+          const distance = patientPoint.distanceTo(value.patientPoint).toFixed(2)
+          if (distance < minDistance) {
+            minDistance = distance;
+            f_id = value.id;
+          }
+      });
+      if (f_id) {
+        str = str.concat(
+          'fid '+ f_id + ' is closest to ',
+          (val.ClinSig) ? 'CS-' + val.fid : 'CNS-' + val.fid,
+          ' with ' + minDistance + ' mm\n'
+        );
+      }
+    });
+
+    return str;
+  }
+
+  const ClinSigCounter = fiducials.filter(v => v.ClinSig).length;
+
+  instance.feedbackString.set(''.concat(
+    'An expert radiologist indicated ',
+    fiducials.length.toString(),
+    (fiducials.length === 1) ? ' area ' : ' areas ',
+    'of suspicion for this patient, and the patient underwent MR-guidance biopsies.\n\n',
+    'Biopsy results:\n',
+    ClinSigCounter,
+    ' clinical significant',
+    (ClinSigCounter === 1) ? ' finding ' : ' findings ',
+    '(Gleason score 7 or higher) were identified by a philologist.\n\n',
+    'Analysis of your findings:\n',
+    findingsAnalysis(),
   ));
   // alert(fiducials.length.toString() + ' locations were biopsied.');
 
