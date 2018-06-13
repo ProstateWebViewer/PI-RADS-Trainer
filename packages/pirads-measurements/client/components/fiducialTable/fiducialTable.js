@@ -162,7 +162,7 @@ async function displayFiducials(instance) {
       if (f_id) {
         str = str.concat(
           'fid '+ f_id + ' is closest to ',
-          (val.ClinSig) ? 'CS-' + val.fid : 'CNS-' + val.fid,
+          (val.ClinSig) ? 'CSPC-' + val.fid : 'CIPC-' + val.fid,
           ' with ' + minDistance + ' mm\n'
         );
       }

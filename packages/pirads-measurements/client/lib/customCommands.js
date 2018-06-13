@@ -69,7 +69,7 @@ function drawId(e) {
     }
     else {
       const id = data.id.split('.')[1];
-      text = (data.ClinSig) ? 'Clinical Significant (CS-' + id + ')' : 'Clinical Not Significant (CNS-' + id + ')';
+      text = (data.ClinSig) ? 'Clinically Significant (CSPC-' + id + ')' : 'Clinically Insignificant (CIPC-' + id + ')';
     }
 
     if (x < 0 || y < 0 || x >= eventData.image.columns || y >= eventData.image.rows) {
