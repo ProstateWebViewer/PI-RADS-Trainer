@@ -8,7 +8,9 @@ What you need:
 
 How to start the app:
 
-1. In the app directory run `METEOR_PACKAGE_DIRS="packages" meteor` or `METEOR_PACKAGE_DIRS="packages" meteor --settings config/dcm4cheeDICOMWeb.json` if you are using dcm4che server.
+1. In the app directory:
+    * for orthanc run: `METEOR_PACKAGE_DIRS="packages" meteor`
+    * for dcm4chee run: `METEOR_PACKAGE_DIRS="packages" meteor --settings config/dcm4cheeDICOMWeb.json`
 
 
 How to install dcm4che:
