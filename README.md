@@ -1,4 +1,4 @@
-# OHIFViewer
+# PI-RADS Trainer
 
 What you need:
 
