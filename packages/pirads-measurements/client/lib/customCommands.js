@@ -111,7 +111,8 @@ function addFiducial(element, measurementData) {
     let imageIds = [];
 
     $('.imageViewerViewport').each((index, ele) => {
-
+      // TODO: REMOVE index check after coreecting multiframe issue
+      if (index !== 3) {
         let elementSpecificMeasurementData = $.extend(true, {}, measurementData);
         const imagePoint = getImagePoint(patientPoint, ele);
         const id = fiducialCounter[studyInstanceUidString]
@@ -133,6 +134,7 @@ function addFiducial(element, measurementData) {
 
             imageIds.push(cornerstone.getEnabledElement(ele).image.imageId);
         }
+      }
     });
 
     if (!measurementData.hasOwnProperty('server')) {
@@ -156,6 +158,7 @@ function addFiducial(element, measurementData) {
 function removeFiducial(element, measurementData) {
     if (measurementData.hasOwnProperty('id')) {
         $('.imageViewerViewport').each((index, ele) => {
+          if (index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
             const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
 
             for (let i = 0; i < toolData.data.length; i++) {
@@ -165,6 +168,7 @@ function removeFiducial(element, measurementData) {
             }
 
             cornerstone.updateImage(ele);
+          }
         });
         fiducialsCollection.remove({ 'id': measurementData.id });
     }
@@ -175,7 +179,7 @@ function modifyFiducial(element, measurementData) {
     const patientPoint = getPatientPoint(measurementData.handles.end, element);
 
     $('.imageViewerViewport').each((index, ele) => {
-        if (ele !== element) {
+        if (ele !== element && index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
             const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
 
             for (let i = 0; i < toolData.data.length; i++) {
@@ -232,9 +236,11 @@ function bindToMeasurementModified(element) {
 
 
 $('.imageViewerViewport').waitUntilExists((index, element) => {
-    bindToMeasurementAdded(element);
-    bindToMeasurementRemoved(element);
-    bindToMeasurementModified(element);
+    if (index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
+        bindToMeasurementAdded(element);
+        bindToMeasurementRemoved(element);
+        bindToMeasurementModified(element);
+    }
 });
 
 

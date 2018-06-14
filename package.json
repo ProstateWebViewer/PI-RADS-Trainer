@@ -14,7 +14,8 @@
     "loglevel": "^1.4.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "METEOR_PACKAGE_DIRS=packages"
   },
   "author": "",
   "license": "MIT"
