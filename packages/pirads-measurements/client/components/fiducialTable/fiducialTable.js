@@ -182,7 +182,7 @@ async function displayFiducials(instance) {
     ClinSigCounter,
     ' clinical significant',
     (ClinSigCounter === 1) ? ' finding ' : ' findings ',
-    '(Gleason score 7 or higher) were identified by a philologist.\n\n',
+    '(Gleason score 7 or higher) were identified by a pathologist.\n\n',
     'Analysis of your findings:\n',
     findingsAnalysis(),
   ));
