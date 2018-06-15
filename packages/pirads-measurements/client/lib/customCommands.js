@@ -68,7 +68,7 @@ function drawId(e) {
       text = 'fid ' + data.id;
     }
     else {
-      const id = data.id.split('.')[1];
+      const id = data.f_id;
       text = (data.ClinSig) ? 'Clinically Significant (CSPC-' + id + ')' : 'Clinically Insignificant (CIPC-' + id + ')';
     }
 
@@ -270,3 +270,5 @@ $('.toolbarSectionTools').waitUntilExists((index, element) => {
         }
     });
 });
+
+export { bindToMeasurementAdded };
