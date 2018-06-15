@@ -12,6 +12,10 @@ if (Fiducials.find().count() === 0) {
     headers: true
   }).on("data", Meteor.bindEnvironment((data) => {
     const pos = data.pos.split(" ").map(Number);
+    const tra = data.t2_tse_tra.split(" ").map(Number);
+    const adc = data.adc.split(" ").map(Number);
+    const hbval = data.bval.split(" ").map(Number);
+    const ktrans = data.ktrans.split(" ").map(Number);
     const fiducial = {
       ProxID: data.ProxID,
       fid: data.fid,
@@ -21,7 +25,27 @@ if (Fiducials.find().count() === 0) {
         z: pos[2]
       },
       zone: data.zone,
-      ClinSig: (data.ClinSig == 'TRUE') ? true : false
+      ClinSig: (data.ClinSig == 'TRUE') ? true : false,
+      tra: {
+        x: tra[0],
+        y: tra[1],
+        z: tra[2]
+      },
+      adc: {
+        x: adc[0],
+        y: adc[1],
+        z: adc[2]
+      },
+      hbval: {
+        x: hbval[0],
+        y: hbval[1],
+        z: hbval[2]
+      },
+      ktrans: {
+        x: ktrans[0],
+        y: ktrans[1],
+        z: ktrans[2]
+      }
     };
     Fiducials.insert(fiducial);
   })).on("end", function() {
