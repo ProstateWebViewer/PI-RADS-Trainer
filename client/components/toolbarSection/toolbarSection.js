@@ -97,7 +97,7 @@ Template.toolbarSection.helpers({
             classes: 'imageViewerTool',
             // svgLink: '/icon/icons.svg#scroll'
             // svgLink: '/icon/scroll.svg'
-            iconClasses: 'fa fa-refresh'
+            iconClasses: 'fa fa-unsorted'
         });
 
         buttonData.push({
@@ -137,16 +137,9 @@ Template.toolbarSection.helpers({
 
         buttonData.push({
             id: 'wwwcRegion',
-            title: 'ROI Window',
+            title: 'ROI Level',
             classes: 'imageViewerTool',
             iconClasses: 'fa fa-square'
-        });
-
-        buttonData.push({
-            id: 'ellipticalRoi',
-            title: 'Ellipse',
-            classes: 'imageViewerTool',
-            iconClasses: 'fa fa-circle-o'
         });
 
         buttonData.push({

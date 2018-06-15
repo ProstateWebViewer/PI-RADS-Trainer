@@ -4,7 +4,7 @@ import { OHIF } from 'meteor/ohif:core';
 import { cornerstoneTools } from 'meteor/ohif:cornerstone';
 import { ReactiveVar } from 'meteor/reactive-var'
 import { $ } from 'meteor/jquery';
-import '../../lib/customCommands.js'
+import { bindToMeasurementAdded } from '../../lib/customCommands.js'
 
 Fiducials = new Mongo.Collection('fiducials');
 
@@ -85,61 +85,130 @@ function wait(ms) {
   });
 }
 
+function descriptionMap(seriesDescription) {
+    if (seriesDescription.includes('t2_tse_tra')) {
+        return 'tra';
+    }
+    else if (seriesDescription.includes('_ADC')) {
+        return 'adc';
+    }
+    else if (seriesDescription.includes('_BVAL')) {
+        return 'hbval';
+    }
+    else if (seriesDescription.includes('KTrans')) {
+        return 'ktrans';
+    }
+}
+
 async function displayFiducials(instance) {
+
+  // OHIF.viewerbase.toolManager.setActiveTool('probe');
   $('#probe').trigger("click");
   await wait(1);
 
   const studyInstanceUid = OHIF.viewerbase.layoutManager.viewportData[Session.get('activeViewport')]['studyInstanceUid'];
   const patientName = instance.data.studies[0].patientName;
   const fiducials = Fiducials.find({ ProxID: patientName }).fetch();
-  const element = $('.imageViewerViewport')[Session.get('activeViewport')];
-  const image = cornerstone.getEnabledElement(element).image;
-  const imagePlane = cornerstone.metaData.get('imagePlaneModule', image.imageId);
-  const sliceThickness = cornerstone.metaData.get('instance', image.imageId)['sliceThickness'];
+  const delay = 2000;
+  // const element = $('.imageViewerViewport')[Session.get('activeViewport')];
+  // const image = cornerstone.getEnabledElement(element).image;
+  // const imagePlane = cornerstone.metaData.get('imagePlaneModule', image.imageId);
+  // console.log(imagePlane);
+  // const sliceThickness = cornerstone.metaData.get('instance', image.imageId)['sliceThickness'];
+  $('.imageViewerViewport').each((ind, ele) => {
+      const imageId = cornerstone.getEnabledElement(ele).image.imageId;
+      const seriesDescription = cornerstone.metaData.get('series', imageId)['seriesDescription'];
+      fiducials.forEach(async (val, index) => {
+          const imagePoint = val[descriptionMap(seriesDescription)];
+          // const flag = true
+          // const imagaIndex = (flag) ? (cornerstone.metaData.get('series', imageId).numImages - imagePoint.z) : (imagePoint.z);
+          // console.log(imagaIndex);
+          const imagaIndex = imagePoint.z;
+          function scroll() {
+            return new Promise(resolve => {
+              setTimeout(() => {
+                cornerstoneTools.scrollToIndex(ele, imagaIndex);
+                resolve('resolved');
+              }, delay * (index + 1));
+            });
+          }
+
+          const measurementData = {
+            'f_id': val.fid,
+            'ClinSig': val.ClinSig,
+            'server': true,
+            'visible': true,
+            'active': true,
+            'color': (val.ClinSig) ? '#ee6002' : '#90ee02',
+            'invalidated': true,
+            'handles': {
+              'end': {
+                'active': true,
+                'highlight': true,
+                'x': imagePoint.x,
+                'y': imagePoint.y
+              }
+            }
+          };
+          await scroll();
+          await wait((delay/2) * (index + 1));
+          $(ele).off('cornerstonetoolsmeasurementadded');
+          cornerstoneTools.addToolState(ele, 'probe', measurementData);
+          cornerstone.updateImage(ele);
+          bindToMeasurementAdded(ele);
+      });
+  });
+
+  // await wait(1);
+  // $('#probe').trigger("click");
 
   // console.log(cornerstone.metaData.get('instance', image.imageId));
   // console.log(imagePlane.imagePositionPatient.z);
 
-  fiducials.forEach(async (val, index) => {
+  // fiducials.forEach(async (val, index) => {
     // console.log(val.pos.z);
-    const imagaIndex = Math.floor(Math.abs(imagePlane.imagePositionPatient.z - val.pos.z)/sliceThickness) - 2;
-    const delay = 500;
+    // const imagaIndex = Math.floor(Math.abs(imagePlane.imagePositionPatient.z - val.pos.z)/sliceThickness) - 2;
+    // const seriesDescription = cornerstone.metaData.get('series', image.imageId);
 
-    function scroll() {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          cornerstoneTools.scrollToIndex(element, imagaIndex);
-          resolve('resolved');
-        }, delay * (index + 1));
-      });
-    }
 
-    await scroll();
-    await wait((delay/2) * (index + 1));
+
+    // const delay = 1000;
+    //
+    // function scroll() {
+    //   return new Promise(resolve => {
+    //     setTimeout(() => {
+    //       cornerstoneTools.scrollToIndex(element, imagaIndex);
+    //       resolve('resolved');
+    //     }, delay * (index + 1));
+    //   });
+    // }
+    //
+    // await scroll();
+    // await wait((delay/2) * (index + 1));
 
     // console.log(imagaIndex);
-    const patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
-
-    const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
-    const measurementData = {
-      'f_id': val.fid,
-      'ClinSig': val.ClinSig,
-      'server': true,
-      'visible': true,
-      'active': true,
-      'color': (val.ClinSig) ? '#ee6002' : '#90ee02',
-      'invalidated': true,
-      'handles': {
-        'end': {
-          'active': true,
-          'highlight': true,
-          'x': imagePoint.x,
-          'y': imagePoint.y
-        }
-      }
-    };
-    cornerstoneTools.addToolState(element, 'probe', measurementData);
-  });
+    // const patientPoint = new cornerstoneMath.Vector3(val.pos.x, val.pos.y, val.pos.z);
+    //
+    // const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
+    // const measurementData = {
+    //   'f_id': val.fid,
+    //   'ClinSig': val.ClinSig,
+    //   'server': true,
+    //   'visible': true,
+    //   'active': true,
+    //   'color': (val.ClinSig) ? '#ee6002' : '#90ee02',
+    //   'invalidated': true,
+    //   'handles': {
+    //     'end': {
+    //       'active': true,
+    //       'highlight': true,
+    //       'x': imagePoint.x,
+    //       'y': imagePoint.y
+    //     }
+    //   }
+    // };
+    // cornerstoneTools.addToolState(element, 'probe', measurementData);
+  // });
 
   $('#feedback-button').addClass('disabled');
   $('#feedback-button').removeClass('js-save');
