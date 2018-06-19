@@ -1,8 +1,7 @@
-<template name="previousPresentationGroupButton">
+<template name="previousPatientButton">
     <div id="{{this.id}}"
-         class="toolbarSectionButton rp-x-1 {{this.classes}} {{activeClass}} {{ #if previousNotAvailable }}disabled{{ /if }}"
-         title="{{this.title}}"
-         disabled="{{ #if previousNotAvailable }}true{{ /if }}">
+         class="toolbarSectionButton rp-x-1 {{this.classes}} {{activeClass}}"
+         title="{{this.title}}">
         <div class="svgContainer">
         {{ #if this.svgLink }}
         <svg>

@@ -1,7 +1,7 @@
 import { Mongo } from 'meteor/mongo';
 import { cornerstoneTools, cornerstone } from 'meteor/ohif:cornerstone'
 import { $ } from 'meteor/jquery';
-import { waitUntilExists } from 'jquery.waituntilexists'
+import { waitUntilExists } from 'jquery.waituntilexists';
 
 
 fiducialsCollection = new Mongo.Collection('fiducialsCollection', {connection: null});

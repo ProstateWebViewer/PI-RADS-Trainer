@@ -159,6 +159,26 @@ Template.toolbarSection.helpers({
 
         return buttonData;
     },
+
+    hangingProtocolButtons() {
+        let buttonData = [];
+
+        buttonData.push({
+            id: 'previousPatient',
+            title: 'Prev. Patient',
+            iconClasses: 'fa fa-step-backward',
+            buttonTemplateName: 'previousPatientButton'
+        });
+
+        buttonData.push({
+            id: 'nextPatient',
+            title: 'Next Patient',
+            iconClasses: 'fa fa-step-forward',
+            buttonTemplateName: 'nextPatientButton'
+        });
+
+        return buttonData;
+    }
 });
 
 Template.toolbarSection.onRendered(function() {

@@ -25,7 +25,7 @@ if (Fiducials.find().count() === 0) {
         z: pos[2]
       },
       zone: data.zone,
-      ClinSig: (data.ClinSig == 'TRUE') ? true : false,
+      ClinSig: (data.ClinSig === 'True') ? true : false,
       tra: {
         x: tra[0],
         y: tra[1],
