@@ -155,8 +155,30 @@ function addFiducial(element, measurementData) {
 }
 
 
+function descriptionMap(seriesDescription) {
+    if (seriesDescription.includes('t2_tse_tra')) {
+        return 'tra';
+    }
+    else if (seriesDescription.includes('_ADC')) {
+        return 'adc';
+    }
+    else if (seriesDescription.includes('_BVAL')) {
+        return 'hbval';
+    }
+    else if (seriesDescription.includes('KTrans')) {
+        return 'ktrans';
+    }
+}
+
+
 function removeFiducial(element, measurementData) {
-    if (measurementData.hasOwnProperty('id')) {
+    if (measurementData.hasOwnProperty('server')) {
+        $(element).off('cornerstonetoolsmeasurementadded');
+        cornerstoneTools.addToolState(element, 'probe', measurementData);
+        cornerstone.updateImage(element);
+        bindToMeasurementAdded(element);
+    }
+    else if (measurementData.hasOwnProperty('id')) {
         $('.imageViewerViewport').each((index, ele) => {
           if (index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
             const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
@@ -178,28 +200,38 @@ function removeFiducial(element, measurementData) {
 function modifyFiducial(element, measurementData) {
     const patientPoint = getPatientPoint(measurementData.handles.end, element);
 
-    $('.imageViewerViewport').each((index, ele) => {
-        if (ele !== element && index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
-            const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
-
-            for (let i = 0; i < toolData.data.length; i++) {
-                if (toolData.data[i].id === measurementData.id) {
-                    let elementSpecificMeasurementData = toolData.data[i];
-                    const imagePoint = getImagePoint(patientPoint, ele);
-                    elementSpecificMeasurementData.handles.end.x = imagePoint.x;
-                    elementSpecificMeasurementData.handles.end.y = imagePoint.y;
-                }
-            }
-
-            cornerstone.updateImage(ele);
-        }
-    });
-
-    let fiducial = {
-      'patientPoint': patientPoint
+    if (measurementData.hasOwnProperty('server')) {
+        const imageId = cornerstone.getEnabledElement(element).image.imageId;
+        const seriesDescription = cornerstone.metaData.get('series', imageId)['seriesDescription'];
+        const patientName = OHIF.viewer.Studies.all()[0]['patientName'];
+        const pos = Fiducials.findOne({ ProxID: patientName, fid: measurementData.f_id})[descriptionMap(seriesDescription)];
+        measurementData.handles.end.x = pos.x;
+        measurementData.handles.end.y = pos.y;
     }
+    else {
+        $('.imageViewerViewport').each((index, ele) => {
+            if (ele !== element && index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
+                const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
 
-    fiducialsCollection.update({ 'id': measurementData.id }, { $set: fiducial });
+                for (let i = 0; i < toolData.data.length; i++) {
+                    if (toolData.data[i].id === measurementData.id) {
+                        let elementSpecificMeasurementData = toolData.data[i];
+                        const imagePoint = getImagePoint(patientPoint, ele);
+                        elementSpecificMeasurementData.handles.end.x = imagePoint.x;
+                        elementSpecificMeasurementData.handles.end.y = imagePoint.y;
+                    }
+                }
+
+                cornerstone.updateImage(ele);
+            }
+        });
+
+        let fiducial = {
+          'patientPoint': patientPoint
+        }
+
+        fiducialsCollection.update({ 'id': measurementData.id }, { $set: fiducial });
+    }
 }
 
 
