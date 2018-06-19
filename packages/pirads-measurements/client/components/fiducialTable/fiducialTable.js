@@ -103,6 +103,7 @@ function descriptionMap(seriesDescription) {
 async function displayFiducials(instance) {
 
   // OHIF.viewerbase.toolManager.setActiveTool('probe');
+  // const currentTool = OHIF.viewerbase.toolManager.getActiveTool();
   $('#probe').trigger("click");
   await wait(1);
 
@@ -256,7 +257,7 @@ async function displayFiducials(instance) {
     findingsAnalysis(),
   ));
   // alert(fiducials.length.toString() + ' locations were biopsied.');
-
+  $('#wwwc').trigger("click");
 }
 
 function displayGroundTruth() {
