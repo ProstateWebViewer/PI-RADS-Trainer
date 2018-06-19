@@ -3,16 +3,72 @@ function getDefaultProtocol() {
     protocol.id = 'defaultProtocol';
     protocol.locked = true;
 
-    var oneByOne = new HP.ViewportStructure('grid', {
-        rows: 1,
-        columns: 1
+    const study_desc = new HP.ProtocolMatchingRule('x00081030', {
+        equals: {
+            value: 'prostateMRI'
+        }
+    }, true);
+
+    protocol.addProtocolMatchingRule(study_desc);
+
+    const twoByTwo = new HP.ViewportStructure('grid', {
+        rows: 2,
+        columns: 2
     });
 
-    var viewport = new HP.Viewport();
-    var first = new HP.Stage(oneByOne, 'oneByOne');
-    first.viewports.push(viewport);
+    const topLeft = new HP.Viewport();
+    const t2_match = new HP.SeriesMatchingRule('x0008103e', {
+        equals: {
+            value: "t2_tse_tra"
+        }
+    });
+    topLeft.seriesMatchingRules.push(t2_match);
 
-    protocol.stages.push(first);
+    const topRight = new HP.Viewport();
+    const adc_match = new HP.SeriesMatchingRule('x0008103e', {
+        contains: {
+            value: "_ADC"
+        }
+    });
+    topRight.seriesMatchingRules.push(adc_match);
+
+    const bottomLeft = new HP.Viewport();
+    const high_bval_match = new HP.SeriesMatchingRule('x0008103e', {
+        contains: {
+            value: "_BVAL"
+        }
+    });
+    bottomLeft.seriesMatchingRules.push(high_bval_match);
+
+    const bottomRight = new HP.Viewport();
+    const ktrans_match = new HP.SeriesMatchingRule('x0008103e', {
+        contains: {
+            value: "KTrans"
+        }
+    });
+    const pm_match = new HP.SeriesMatchingRule('x0008103e', {
+      contains: {
+        value: "Parametric Map"
+      }
+    });
+
+    bottomRight.seriesMatchingRules.push(ktrans_match);
+    bottomRight.seriesMatchingRules.push(pm_match);
+    bottomRight.viewportSettings = {
+      colormap: 'jet',
+      voi: {
+        windowWidth: 6,
+        windowCenter: 3
+      }
+    };
+
+    const stage = new HP.Stage(twoByTwo, 'twoByTwo');
+    stage.viewports.push(topLeft);
+    stage.viewports.push(topRight);
+    stage.viewports.push(bottomLeft);
+    stage.viewports.push(bottomRight);
+
+    protocol.stages.push(stage);
 
     HP.defaultProtocol = protocol;
     return HP.defaultProtocol;

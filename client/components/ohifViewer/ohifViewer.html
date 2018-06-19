@@ -17,7 +17,7 @@
             </div>
         {{/section}}
     {{/header}}
-    {{#if not studyListToggleText}}
+    {{#if inStudyList}}
         <br>
         <div id="how-to">
             <div id="how-to-content">
@@ -31,7 +31,7 @@
                   image stacks including T2-weighted images, ADC map, high b-value DWI,
                   and Ktrans map obtained from contrast-enhanced imaging. The user places
                   a fiducial marker on a suspicious region of the prostate, and may
-                  the select "report" option to be directed to a user interface for
+                  select the "report" option to be directed to a user interface for
                   reporting using PI-RADS v2. After entering the finding anatomical
                   location, and scores for each image, the user may submit the report.
                   After submission, the application gives the user a feedback message
@@ -39,13 +39,6 @@
                   their histologically proven outcomes. Relative distances (in mm) between
                   the user-defined findings and the biopsy locations are also calculated
                   and displayed to the user.
-                </p>
-                <br>
-                <p>
-                  The core image viewer is developed with <a target="_blank" href="https://github.com/ohif/Viewers">OHIF viewer</a>
-                  and <a target="_blank" href="https://github.com/cornerstonejs/cornerstone">Cornerstone</a>.
-                  PIRADS-Trainer is tested with the <a target="_blank" href="https://wiki.cancerimagingarchive.net/display/Public/SPIE-AAPM-NCI+PROSTATEx+Challenges">data</a> from Radboud University Medical
-                  Centre, Nijmegen containing more than 200 MR images with pathological information.
                 </p>
                 <br>
             </div>

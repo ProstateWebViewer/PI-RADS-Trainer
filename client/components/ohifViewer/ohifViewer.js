@@ -11,7 +11,12 @@ Template.ohifViewer.onCreated(() => {
     OHIF.header.dropdown.setItems([{
         action: () => OHIF.ui.showDialog('userPreferencesDialog'),
         text: 'Preferences',
-        icon: 'fa fa-user'
+        icon: 'fa fa-user',
+        separatorAfter: true
+    }, {
+        action: () => OHIF.ui.showDialog('aboutModal'),
+        text: 'About',
+        icon: 'fa fa-info'
     }]);
 
     instance.autorun(() => {
@@ -58,5 +63,10 @@ Template.ohifViewer.helpers({
         }
 
         return instance.hasViewerData ? 'Back to viewer' : '';
+    },
+
+    inStudyList() {
+        var routeName = Router.current().route.getName();
+        return routeName === "studylist"
     }
 });

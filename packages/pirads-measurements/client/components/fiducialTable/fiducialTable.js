@@ -122,8 +122,8 @@ async function displayFiducials(instance) {
           const imagePoint = val[descriptionMap(seriesDescription)];
           // const flag = true
           // const imagaIndex = (flag) ? (cornerstone.metaData.get('series', imageId).numImages - imagePoint.z) : (imagePoint.z);
-          // console.log(imagaIndex);
-          const imagaIndex = imagePoint.z;
+          // console.log(cornerstone.metaData.get('series', imageId).numImages);
+          const imagaIndex = cornerstone.metaData.get('series', imageId).numImages - imagePoint.z - 1;
           function scroll() {
             return new Promise(resolve => {
               setTimeout(() => {

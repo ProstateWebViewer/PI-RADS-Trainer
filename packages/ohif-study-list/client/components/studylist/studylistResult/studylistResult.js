@@ -182,6 +182,10 @@ function search() {
             return;
         }
 
+        const storage = null;
+
+
+
         // Loop through all identified studies
         studies.forEach(study => {
             // Search the rest of the parameters that aren't done via the server call
@@ -196,6 +200,10 @@ function search() {
                 OHIF.studylist.collections.Studies.insert(study);
             }
         });
+
+        if (typeof(Storage) !== "undefined") {
+            window.sessionStorage.setItem("studies", JSON.stringify(OHIF.studylist.collections.Studies.find({}, {sort: {patientName: 1}}).fetch()));
+        }
     });
 }
 
