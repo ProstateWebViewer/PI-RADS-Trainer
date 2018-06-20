@@ -16,7 +16,13 @@ Template.ohifViewer.onCreated(() => {
     }, {
         action: () => OHIF.ui.showDialog('aboutModal'),
         text: 'About',
-        icon: 'fa fa-info'
+        icon: 'fa fa-info',
+        separatorAfter: true
+    }, {
+        action: OHIF.user.logout,
+        text: 'Logout',
+        iconClasses: 'logout',
+        iconSvgUse: 'packages/ohif_user-management/assets/user-menu-icons.svg#logout'
     }]);
 
     instance.autorun(() => {
@@ -53,6 +59,9 @@ Template.ohifViewer.events({
 });
 
 Template.ohifViewer.helpers({
+  
+    userName: OHIF.user.getName,
+
     studyListToggleText() {
         const instance = Template.instance();
         const isViewer = Session.get('ViewerOpened');
