@@ -43,6 +43,11 @@ ohif:hanging-protocols
 ohif:metadata
 pirads:core
 
+clinical:active-entry
+ohif:user
+ohif:user-management
+ohif:select-tree
+
 twbs:bootstrap
 fortawesome:fontawesome
 momentjs:moment@2.15.1
