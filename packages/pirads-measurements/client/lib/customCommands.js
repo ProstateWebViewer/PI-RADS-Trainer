@@ -277,25 +277,30 @@ $('.imageViewerViewport').waitUntilExists((index, element) => {
 
 
 $('.toolbarSectionTools').waitUntilExists((index, element) => {
-    $(element).children().on('click', (ev) => {
+    $(element).children().on('click', async (ev) => {
         const activeTool = ev.currentTarget.id;
         if (activeTool === 'probe') {
-            $('.imageViewerViewport').each(async (index, ele) => {
+            $('.imageViewerViewport').each((index, ele) => {
                 // TODO: not a good idea to wait till we scroll, see if there is a better way!
                 $(ele).on('cornerstoneimagerendered', (e) => {
                     drawId(e.originalEvent);
                 });
-                await function scroll() {
-                    return new Promise((resolve) => {
-                        setTimeout(() => {
-                            cornerstoneTools.scrollToIndex(ele, 0);
-                            resolve('resolved');
-                        }, 1);
-                    });
-                }();
 
                 probeSynchronizer.add(ele);
             });
+
+            await function scroll() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        const activeViewportIndex = Session.get('activeViewport');
+                        const newIndex = OHIF.viewerbase.layoutManager.viewportData[activeViewportIndex]['currentImageIdIndex'];
+                        const element = $('.imageViewerViewport')[activeViewportIndex];
+                        cornerstoneTools.scrollToIndex(element, 0);
+                        cornerstoneTools.scrollToIndex(element, newIndex);
+                        resolve('resolved');
+                    }, 1);
+                });
+            }();
         }
         else if (probeSynchronizer) {
             probeSynchronizer.destroy();

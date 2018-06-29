@@ -22,7 +22,5 @@ Package.onUse(function(api) {
     api.use('momentjs:moment');
     api.use('validatejs');
 
-    api.addFiles('client/components/fiducialTable/fiducialTable.html', 'client');
-    api.addFiles('client/components/fiducialTable/fiducialTable.styl', 'client');
-    api.addFiles('client/components/fiducialTable/fiducialTable.js', 'client');
+    api.addFiles('client/components/index.js', 'client');
 });

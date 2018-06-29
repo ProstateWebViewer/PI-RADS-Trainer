@@ -1,0 +1,61 @@
+<template name="measurementTableRow">
+    <div class="measurementTableRow">
+        <div class='measurementRowSidebar'>
+            <div id="fid-id" class="hidden">{{rowItem.id}}</div>
+            <div class="measurementNumber">
+                <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="measurementDetails">
+            <div class='location'>
+                Finding {{rowItem.id}}
+            </div>
+            <div class="rowOptions">
+                <br>
+
+                <form>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <div class="input-group">
+                            <select class="form-control" id="location">
+                                <option>Apex</option>
+                                <option>Mid</option>
+                                <option>Base</option>
+                                <option>Seminal Vesicles</option>
+                            </select>
+                            <div class="input-group-addon">R</div>
+                            <div class="input-group-addon">PZa</div>
+                        </div>
+
+                    </div>
+                </form>
+
+
+                <br>
+                <script>function notify(e){console.log(e.target.id); console.log($('.measurementTableRow.active').find("#fid-id").get(0).innerText);}</script>
+                <embed src="/images/apex.svg" type="image/svg+xml" width="60%" class="img-responsive center-block" />
+                <br>
+
+                <form>
+                    <div class="form-group">
+                        <label for="location">T2:</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimary.value=value">
+                            <output id="rangePrimary">3</output>
+                        </div>
+
+
+                    </div>
+                </form>
+
+                <br>
+
+                <div class="rowAction js-delete pull-left" tabindex="1">
+                    <p><i class="fa fa-trash-o" aria-hidden="true"></i>  Delete</p>
+                </div>
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,16 @@
+<template name="measurementTableView">
+    {{>measurementTableHeaderRow (clone this)}}
+    {{#each rowItem in fiducials}}
+        {{>measurementTableRow (clone this rowItem=rowItem)}}
+    {{/each}}
+    {{#if fiducials}}
+        <div class="report-area">
+            <div class="btn btn-sm">Generate Report</div>
+        </div>
+
+    {{else}}
+        <div class="message-area">
+            <h4 class="type">In order to add a new finding, please choose fiducial <i class="fa fa-dot-circle-o" aria-hidden="true"></i> button from toolbar.</h4>
+        </div>
+    {{/if}}
+</template>
