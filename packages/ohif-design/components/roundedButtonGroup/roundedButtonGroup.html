@@ -1,7 +1,7 @@
 <template name="roundedButtonGroup">
     <div class="{{class}} roundedButtonGroup clearfix center-table">
         {{#each item in this.options}}
-            <a class="roundedButtonWrapper noselect {{#if eq getValue item.value}}active{{/if}}" data-value="{{item.value}}">
+            <a class="roundedButtonWrapper noselect {{#if eq getValue item.value}}active{{/if}} {{item.class}}" data-value="{{item.value}}">
                 <div class="roundedButton">
                     {{#if item.svgLink}}
                         <svg style="width: {{item.svgWidth}}px; height: {{item.svgHeight}}px">

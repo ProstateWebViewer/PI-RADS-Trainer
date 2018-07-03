@@ -5,6 +5,9 @@ Template.flexboxLayout.events({
         }
 
         window.ResizeViewportManager.handleResize();
+
+        $('.roundedButtonWrapper[data-value="findings"]').click();
+        $('.roundedButtonWrapper[data-value="result"]').addClass('disabled');
     }
 });
 

@@ -23,10 +23,12 @@ Template.measurementTable.helpers({
             value: instance.data.measurementTableLayout,
             options: [{
                 value: 'findings',
-                lgText: 'Findings'
+                lgText: 'Findings',
+                class: 'js-toggleable'
             }, {
                 value: 'result',
-                lgText: 'Result'
+                lgText: 'Result',
+                class: 'js-toggleable'
             }]
         };
     }

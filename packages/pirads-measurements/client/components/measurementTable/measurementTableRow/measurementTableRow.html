@@ -23,38 +23,56 @@
                                 <option>Base</option>
                                 <option>Seminal Vesicles</option>
                             </select>
-                            <div class="input-group-addon">R</div>
-                            <div class="input-group-addon">PZa</div>
+                            <div id="location-side-{{rowItem.id}}" class="input-group-addon">-</div>
+                            <div id="location-pos-{{rowItem.id}}" class="input-group-addon">-</div>
                         </div>
 
                     </div>
-                </form>
 
 
-                <br>
-                <script>function notify(e){console.log(e.target.id); console.log($('.measurementTableRow.active').find("#fid-id").get(0).innerText);}</script>
-                <embed src="/images/apex.svg" type="image/svg+xml" width="60%" class="img-responsive center-block" />
-                <br>
+                    <br>
+                    <script>
+                        function notify(e){
+                            let loc = e.target.id.split("_");
+                            let eleId = $('.measurementTableRow.active').find("#fid-id").get(0).innerText;
+                            $('#location-side-' + eleId).text(loc[0]);
+                            $('#location-pos-' + eleId).text(loc[1]);
+                        }
+                    </script>
+                    <div id="location-img-{{rowItem.id}}">
+                        <embed src="/images/apex.svg" type="image/svg+xml" width="50%" class="img-responsive center-block" />
+                    </div>
+                    <br>
 
-                <form>
-                    <div class="form-group">
-                        <label for="location">T2:</label>
+                    <div class="form-group col-sm-6">
+                        <label for="location">T2</label>
                         <div class="range range-primary">
-                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimary.value=value">
-                            <output id="rangePrimary">3</output>
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryT2.value=value">
+                            <output id="rangePrimaryT2">3</output>
                         </div>
-
-
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="location">DWI</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryDWI.value=value">
+                            <output id="rangePrimaryDWI">3</output>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="location">DCE</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryDCE.value=value">
+                            <output id="rangePrimaryDCE">3</output>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="location">PIRADS</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryPIRADS.value=value">
+                            <output id="rangePrimaryPIRADS">3</output>
+                        </div>
                     </div>
                 </form>
-
-                <br>
-
-                <div class="rowAction js-delete pull-left" tabindex="1">
-                    <p><i class="fa fa-trash-o" aria-hidden="true"></i>  Delete</p>
-                </div>
-                <br>
-                <br>
             </div>
         </div>
     </div>

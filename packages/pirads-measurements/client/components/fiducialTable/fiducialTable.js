@@ -6,7 +6,7 @@ import { ReactiveVar } from 'meteor/reactive-var'
 import { $ } from 'meteor/jquery';
 import { bindToMeasurementAdded } from '../../lib/customCommands.js'
 
-Fiducials = new Mongo.Collection('fiducials');
+// Fiducials = new Mongo.Collection('fiducials');
 
 var zoneDecoder = function (sectorName)
 {
