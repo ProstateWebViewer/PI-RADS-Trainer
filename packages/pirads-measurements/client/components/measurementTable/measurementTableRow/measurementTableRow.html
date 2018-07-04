@@ -1,0 +1,78 @@
+<template name="measurementTableRow">
+    <div class="measurementTableRow" id="fid-{{rowItem.id}}">
+        <div class="measurementRowSidebar">
+            <div class="measurementNumber">
+                <i class="fa fa-caret-right" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="measurementDetails">
+            <div class='title'>
+                Finding {{rowItem.id}}
+            </div>
+            <div class="rowOptions">
+                <br>
+
+                <form>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <div class="input-group">
+                            <select class="form-control location" id="{{rowItem.id}}">
+                                <option>Apex</option>
+                                <option>Mid</option>
+                                <option>Base</option>
+                                <option>Seminal Vesicles</option>
+                            </select>
+                            <div id="location-side-{{rowItem.id}}" class="input-group-addon">-</div>
+                            <div id="location-pos-{{rowItem.id}}" class="input-group-addon">-</div>
+                        </div>
+
+                    </div>
+
+
+                    <br>
+                    <script>
+                        function notify(e){
+                            let loc = e.target.id.split("_");
+                            let eleId = $('.measurementTableRow.active').find('select').get(0).id;
+                            $('#location-side-' + eleId).text(loc[0]);
+                            $('#location-pos-' + eleId).text(loc[1]);
+                        }
+                    </script>
+                    <div id="location-img-{{rowItem.id}}">
+                        <embed src="/images/apex.svg" type="image/svg+xml" width="50%" class="img-responsive center-block" />
+                    </div>
+                    <br>
+
+                    <div class="form-group col-sm-6">
+                        <label for="location">T2</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryT2.value=value">
+                            <output id="rangePrimaryT2">3</output>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="location">DWI</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryDWI.value=value">
+                            <output id="rangePrimaryDWI">3</output>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="location">DCE</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryDCE.value=value">
+                            <output id="rangePrimaryDCE">3</output>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="location">PIRADS</label>
+                        <div class="range range-primary">
+                            <input type="range" name="range" min="1" max="5" value="3" onchange="rangePrimaryPIRADS.value=value">
+                            <output id="rangePrimaryPIRADS">3</output>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</template>

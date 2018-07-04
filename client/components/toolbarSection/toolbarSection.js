@@ -95,8 +95,6 @@ Template.toolbarSection.helpers({
             id: 'crosshairs',
             title: 'Scroll Sync',
             classes: 'imageViewerTool',
-            // svgLink: '/icon/icons.svg#scroll'
-            // svgLink: '/icon/scroll.svg'
             iconClasses: 'fa fa-unsorted'
         });
 
@@ -120,13 +118,6 @@ Template.toolbarSection.helpers({
             classes: 'imageViewerTool',
             svgLink: '/packages/ohif_viewerbase/assets/icons.svg#icon-tools-measure-non-target'
         });
-
-        // buttonData.push({
-        //     id: 'layout',
-        //     title: 'Layout',
-        //     iconClasses: 'fa fa-th-large',
-        //     buttonTemplateName: 'layoutButton'
-        // });
 
         buttonData.push({
             id: 'magnify',

@@ -1,66 +1,15 @@
 import { Meteor } from 'meteor/meteor';
 import { Template } from 'meteor/templating';
+import { Tracker } from 'meteor/tracker';
+import { ReactiveVar } from 'meteor/reactive-var';
+import { _ } from 'meteor/underscore';
 import { OHIF } from 'meteor/ohif:core';
 import { cornerstoneTools } from 'meteor/ohif:cornerstone';
-import { ReactiveVar } from 'meteor/reactive-var'
 import { $ } from 'meteor/jquery';
-import { bindToMeasurementAdded } from '../../lib/customCommands.js'
+import { Mongo } from 'meteor/mongo';
+import { bindToMeasurementAdded } from '../../../lib/customCommands.js'
 
 Fiducials = new Mongo.Collection('fiducials');
-
-var zoneDecoder = function (sectorName)
-{
-  var zones = {
-    "peripheral": false,
-    "transitional": false,
-    "central": false,
-    "urethra": false,
-    "seminal": false
-  };
-  switch (true) {
-    case sectorName.toUpperCase().startsWith('P'):
-      zones["peripheral"]= true;
-      break;
-    case sectorName.toUpperCase().startsWith('T'):
-      zones["transitional"]= true;
-      break;
-    case sectorName.toUpperCase().startsWith('C'):
-      zones["central"]= true;
-      break;
-    case sectorName.toUpperCase().startsWith('S'):
-      zones["seminal"]= true;
-      break;
-    case sectorName.toUpperCase().startsWith('U'):
-      zones["urethra"]= true;
-      break;
-  }
-
-  return zones;
-};
-
-const list = {
-  "seminal vesicles":{
-    "L":["SV"],
-    "R":["SV"]
-  },
-  "urethra":"urethra",
-  "base":{
-    "L":["AS","TZa","PZa","TZp","CZ","PZpl"],
-    "R":["AS","TZa","PZa","TZp","CZ","PZpl"]
-  },
-  "mid":{
-    "L":["AS","TZa","PZa","TZp","PZpm","PZpl"],
-    "R":["AS","TZa","PZa","TZp","PZpm","PZpl"]
-  },
-  "apex":{
-    "L":["AS","TZa","PZa","TZp","PZpm","PZpl"],
-    "R":["AS","TZa","PZa","TZp","PZpm","PZpl"]
-
-  }
-};
-
-const prostateLabels = ["AS","TZa","PZa","TZp","PZpm","PZpl", "SV", "CZ", "Urethra"];
-
 
 function getImageId() {
   var closest;
@@ -101,7 +50,6 @@ function descriptionMap(seriesDescription) {
 }
 
 async function displayFiducials(instance) {
-
   // OHIF.viewerbase.toolManager.setActiveTool('probe');
   // const currentTool = OHIF.viewerbase.toolManager.getActiveTool();
   $('#probe').trigger("click");
@@ -211,9 +159,6 @@ async function displayFiducials(instance) {
     // cornerstoneTools.addToolState(element, 'probe', measurementData);
   // });
 
-  $('#feedback-button').addClass('disabled');
-  $('#feedback-button').removeClass('js-save');
-
   function findingsAnalysis() {
 
     let str = '';
@@ -252,7 +197,9 @@ async function displayFiducials(instance) {
     ClinSigCounter,
     ' clinical significant',
     (ClinSigCounter === 1) ? ' finding ' : ' findings ',
-    '(Gleason score 7 or higher) were identified by a pathologist.\n\n',
+    '(Gleason score 7 or higher) ',
+    (ClinSigCounter === 1) ? 'was ' : 'were ',
+    'identified in the pathology report.\n\n',
     'Analysis of your findings:\n',
     findingsAnalysis(),
   ));
@@ -260,89 +207,15 @@ async function displayFiducials(instance) {
   $('#wwwc').trigger("click");
 }
 
-function displayGroundTruth() {
-  OHIF.viewer.pathologyInfo.find().forEach(info => {
-    const patientPoint = new cornerstoneMath.Vector3(
-      info.pos_rsa[0],
-      info.pos_rsa[1],
-      info.pos_rsa[2]
-    );
-
-    const study = OHIF.viewer.Studies.all()[0];
-    const displaySet = study.displaySets.find(a => a.seriesDescription === "t2_tse_tra");
-    if (!displaySet) {
-      return;
-    }
-
-    let min = Number.MAX_VALUE;
-    let closestIndex = 0;
-    displaySet.images.forEach((image, index) => {
-      if (image.numberOfFrames && parseInt(image.numberOfFrames, 10) !== 1) {
-        return;
-      }
-
-      const imagePlane = cornerstone.metaData.get('imagePlane', image.getImageId());
-      if (!imagePlane) {
-        return;
-      }
-
-      const distance = cornerstoneMath.point.distance(patientPoint, imagePlane.imagePositionPatient);
-      if (distance < min) {
-        min = distance;
-        closestIndex = index;
-      }
-    });
-
-    const image = displaySet.images[closestIndex];
-    const imagePlane = cornerstone.metaData.get('imagePlane', image.getImageId());
-    const imagePoint = cornerstoneTools.projectPatientPointToImagePlane(patientPoint, imagePlane);
-
-    const imageId = image.getImageId();
-    const toolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveToolState()
-
-    if (!toolState[imageId]) {
-      toolState[imageId] = {};
-    }
-
-    if (!toolState[imageId]['fiducialResults']) {
-      toolState[imageId]['fiducialResults'] = {
-        data: [{
-          handles: {
-            end: {
-              x: imagePoint.x,
-              y: imagePoint.y
-            }
-          },
-          color: info.ClinSig ? 'green' : 'red'
-        }]
-      };
-    } else {
-      toolState[imageId]['fiducialResults'].data.push({
-        handles: {
-          end: {
-            x: imagePoint.x,
-            y: imagePoint.y
-          }
-        },
-        color: info.ClinSig ? 'green' : 'red'
-      });
-    }
-
-    cornerstoneTools.globalImageIdSpecificToolStateManager.restoreToolState(toolState);
-
-    cornerstone.getEnabledElements().forEach(enabledElement => {
-      cornerstone.updateImage(enabledElement.element, true);
-    });
-  });
-}
-
-Template.fiducialTable.onCreated(() => {
+Template.measurementTableView.onCreated(() => {
   const instance = Template.instance();
   instance.feedbackString = new ReactiveVar('');
+  instance.feedbackActive = new ReactiveVar(true);
+  instance.disableReport = new ReactiveVar(false);
   Meteor.subscribe('fiducials.public');
 });
 
-Template.fiducialTable.helpers({
+Template.measurementTableView.helpers({
   fiducials() {
     const studyInstanceUid = window.location.pathname.split('/')[2];
     return fiducialsCollection.find({'studyInstanceUid': studyInstanceUid}).fetch();
@@ -354,13 +227,33 @@ Template.fiducialTable.helpers({
 
   getFeedback() {
     return Template.instance().feedbackString.get();
+  },
+
+  isFeedbackActive() {
+    return Template.instance().feedbackActive.get();
+  },
+
+  isReportDisabled() {
+    return Template.instance().disableReport.get();
   }
+
 });
 
-Template.fiducialTable.events({
-  'click .js-save'(event, instance) {
-    //OHIF.ui.showDialog('feedbackModal');
-    // displayGroundTruth(instance);
-    displayFiducials(instance);
+Template.measurementTableView.events({
+  'click .js-getFeedback'(event, instance) {
+      instance.disableReport.set(true);
+      $('.roundedButtonWrapper[data-value="result"]').removeClass('disabled');
+      $('.roundedButtonWrapper[data-value="result"]').click();
+      instance.feedbackActive.set(false);
+
+      $('.roundedButtonWrapper[data-value="findings"]').on('click', (eve) => {
+          instance.feedbackActive.set(true);
+      });
+      $('.roundedButtonWrapper[data-value="result"]').on('click', (eve) => {
+          instance.feedbackActive.set(false);
+      });
+
+      displayFiducials(instance);
   }
+
 });
