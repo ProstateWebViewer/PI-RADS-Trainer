@@ -10,11 +10,17 @@ Template.measurementTableRow.onCreated(() => {
     const instance = Template.instance();
 });
 
+Template.measurementTableRow.onRendered(() => {
+    const instance = Template.instance();
+    const $row = instance.$('.measurementTableRow');
+    $row.find('.measurementRowSidebar').click();
+});
+
 Template.measurementTableRow.events({
 
-    'change #location'(event, instance) {
+    'change .location'(event, instance) {
         let newElement = '<embed src="/images/' + imgNameMap[event.target.value] + '.svg" type="image/svg+xml" width="60%" class="img-responsive center-block" />';
-        let elementId = $('.measurementTableRow.active').find("#fid-id").get(0).innerText;
+        let elementId = event.currentTarget.id;
         $('#location-img-' + elementId).find(':first-child').remove();
         $('#location-img-' + elementId).append(newElement);
         $('#location-side-' + elementId).text('-');

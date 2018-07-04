@@ -1,13 +1,12 @@
 <template name="measurementTableRow">
-    <div class="measurementTableRow">
-        <div class='measurementRowSidebar'>
-            <div id="fid-id" class="hidden">{{rowItem.id}}</div>
+    <div class="measurementTableRow" id="fid-{{rowItem.id}}">
+        <div class="measurementRowSidebar">
             <div class="measurementNumber">
                 <i class="fa fa-caret-right" aria-hidden="true"></i>
             </div>
         </div>
         <div class="measurementDetails">
-            <div class='location'>
+            <div class='title'>
                 Finding {{rowItem.id}}
             </div>
             <div class="rowOptions">
@@ -17,7 +16,7 @@
                     <div class="form-group">
                         <label for="location">Location</label>
                         <div class="input-group">
-                            <select class="form-control" id="location">
+                            <select class="form-control location" id="{{rowItem.id}}">
                                 <option>Apex</option>
                                 <option>Mid</option>
                                 <option>Base</option>
@@ -34,7 +33,7 @@
                     <script>
                         function notify(e){
                             let loc = e.target.id.split("_");
-                            let eleId = $('.measurementTableRow.active').find("#fid-id").get(0).innerText;
+                            let eleId = $('.measurementTableRow.active').find('select').get(0).id;
                             $('#location-side-' + eleId).text(loc[0]);
                             $('#location-pos-' + eleId).text(loc[1]);
                         }

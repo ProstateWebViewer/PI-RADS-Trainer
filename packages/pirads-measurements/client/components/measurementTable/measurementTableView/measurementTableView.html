@@ -1,5 +1,5 @@
 <template name="measurementTableView">
-    {{#if isFeedbackActive}}
+    <div class="{{#if not isFeedbackActive}}hidden{{/if}}">
         {{>measurementTableHeaderRow (clone this)}}
         {{#each rowItem in fiducials}}
             {{>measurementTableRow (clone this rowItem=rowItem)}}
@@ -13,12 +13,11 @@
                 <h4 class="type">In order to add a new finding, please choose fiducial <i class="fa fa-dot-circle-o" aria-hidden="true"></i> button from toolbar.</h4>
             </div>
         {{/if}}
-    {{else}}
-        <div>
-            <hr style="margin-top:0;">
-            <div id="feedback-section">
-                <pre>{{ getFeedback }}</pre>
-            </div>
+    </div>
+    <div class="{{#if isFeedbackActive}}hidden{{/if}}">
+        <hr style="margin-top:0;">
+        <div id="feedback-section">
+            <pre>{{ getFeedback }}</pre>
         </div>
-    {{/if}}
+    </div>
 </template>
