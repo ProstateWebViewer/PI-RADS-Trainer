@@ -7,6 +7,7 @@ import { OHIF } from 'meteor/ohif:core';
 import { cornerstoneTools } from 'meteor/ohif:cornerstone';
 import { $ } from 'meteor/jquery';
 import { Mongo } from 'meteor/mongo';
+import { Session } from 'meteor/session';
 import { bindToMeasurementAdded } from '../../../lib/customCommands.js'
 
 Fiducials = new Mongo.Collection('fiducials');
@@ -243,6 +244,7 @@ Template.measurementTableView.events({
   'click .js-getFeedback'(event, instance) {
       instance.disableReport.set(true);
       $('.roundedButtonWrapper[data-value="result"]').removeClass('disabled');
+      Session.set('resultGenerated', true);
       $('.roundedButtonWrapper[data-value="result"]').click();
       instance.feedbackActive.set(false);
 
