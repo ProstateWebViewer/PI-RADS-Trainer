@@ -4,7 +4,7 @@ services:
     image: jodogne/orthanc-plugins:1.3.2
     # env_file: development.env
     env_file: production.env
-    command: sed 's/\("RegisteredUsers" : {\)/\1\n    "${ORTHANC_USER}" : "${ORTHANC_PWD}"/' -i /etc/orthanc/orthanc.json
+    command: sed ${ORTHANC_STRING} -i ${ORTHANC_CONFIG}
     ports:
       - 4242:4242
       - 8042:8042
