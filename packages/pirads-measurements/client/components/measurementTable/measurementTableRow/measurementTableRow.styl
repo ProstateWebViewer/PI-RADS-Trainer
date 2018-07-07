@@ -12,6 +12,10 @@ form
   transform(scale(1))
   width: calc(100% + 6px)
 
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button
+    -webkit-appearance: none
+    margin: 0
+
   &.active
 
     .measurementRowSidebar
@@ -44,6 +48,18 @@ form
 
     .warning-icon
       margin: 7px auto 0
+
+  .custom-input
+    background-color: rgba(255,255,255,0)
+    color: white
+    theme('border-color', '$activeColor')
+
+  .pointer-cursor
+    cursor: pointer
+
+  .custom-input-group-addon
+    padding-top: 0
+    padding-bottom: 0
 
   .rowOptions
     theme('background-color', '$uiGrayDarker')

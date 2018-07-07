@@ -2,7 +2,19 @@
 
 .measurementTableView
 
-  .report-area 
+  .custom-textarea
+    margin-top: 20px;
+
+  .custom-textarea label
+    theme('color', '$defaultColor')
+
+  textarea
+    resize: none
+    background-color: rgba(0,0,0,0)
+    theme('border-color', '$activeColor')
+    color: white
+
+  .report-area
     theme('background-color', '$uiGrayDarker')
     margin-top: 2px
     padding: 10px 0

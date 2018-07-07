@@ -1,3 +1,5 @@
+import { Session } from 'meteor/session';
+
 Template.flexboxLayout.events({
     'transitionend .sidebarMenu'(event) {
         if (!event.target.classList.contains('sidebarMenu')) {
@@ -7,7 +9,12 @@ Template.flexboxLayout.events({
         window.ResizeViewportManager.handleResize();
 
         $('.roundedButtonWrapper[data-value="findings"]').click();
-        $('.roundedButtonWrapper[data-value="result"]').addClass('disabled');
+        if (Session.get('resultGenerated') === true) {
+            $('.roundedButtonWrapper[data-value="result"]').removeClass('disabled');
+        }
+        else {
+            $('.roundedButtonWrapper[data-value="result"]').addClass('disabled');
+        }
     }
 });
 

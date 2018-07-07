@@ -46,4 +46,12 @@ Template.measurementTableRow.events({
     'click .js-delete'(event, instance) {
         console.log('===============================');
     },
+
+    'click .js-increment'(event, instance) {
+        document.getElementById($($(event.currentTarget)[0].parentElement).siblings('input')[0].id).stepUp(1);
+    },
+
+    'click .js-decrement'(event, instance) {
+        document.getElementById($($(event.currentTarget)[0].parentElement).siblings('input')[0].id).stepDown(1);
+    },
 });
