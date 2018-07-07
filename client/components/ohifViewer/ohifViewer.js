@@ -9,6 +9,11 @@ Template.ohifViewer.onCreated(() => {
     instance.headerClasses = new ReactiveVar('');
 
     OHIF.header.dropdown.setItems([{
+        action: () => OHIF.ui.showDialog('serverInformationModal'),
+        text: 'Server Information',
+        icon: 'fa fa-server fa-lg',
+        separatorAfter: true
+    }, {
         action: () => OHIF.ui.showDialog('userPreferencesDialog'),
         text: 'Preferences',
         icon: 'fa fa-user',
@@ -59,7 +64,7 @@ Template.ohifViewer.events({
 });
 
 Template.ohifViewer.helpers({
-  
+
     userName: OHIF.user.getName,
 
     studyListToggleText() {
