@@ -76,6 +76,32 @@ export class MetadataProvider {
             age: studyMetadata.patientAge
         };
 
+        if (!instanceMetadata.imagePositionPatient) {
+          const errorLoadingHandler = cornerstoneTools.loadHandlerManager.getErrorLoadingHandler();
+          let imagePromise;
+          try {
+              imagePromise = cornerstone.loadImage(imageId);
+          } catch (error) {
+              OHIF.log.info(error);
+              if (!imagePromise) {
+                  errorLoadingHandler(element, imageId, error);
+                  return;
+              }
+          }
+
+          imagePromise.then(image => {
+            let options = {
+                omitPrivateAttibutes :false ,
+                maxElementLength: 128
+            };
+            let dataSet = dicomParser.parseDicom(image.data['byteArray']);
+            let tags = dicomParser.explicitDataSetToJS(dataSet, options);
+            frame = parseInt(imageId.split('frame=')[1]);
+            instanceMetadata.imagePositionPatient = tags['x52009230'][frame]['x00209113'][0]['x00200032'];
+            metadata.imagePlane = this.getImagePlane(instanceMetadata);
+          });
+        }
+
         // If there is sufficient information, populate
         // the imagePlane object for easier use in the Viewer
         metadata.imagePlane = this.getImagePlane(instanceMetadata);
@@ -216,6 +242,20 @@ export class MetadataProvider {
 
         if ((image.data || image.instance) && !imageMetadata.instance.multiframeMetadata) {
             imageMetadata.instance.multiframeMetadata = this.getMultiframeModuleMetadata(image);
+        }
+
+        if (imageMetadata.instance.multiframeMetadata.isMultiframeImage) {
+            let options = {
+                omitPrivateAttibutes :false ,
+                maxElementLength: 128
+            };
+            let dataSet = dicomParser.parseDicom(image.data['byteArray']);
+            let tags = dicomParser.explicitDataSetToJS(dataSet, options);
+            imageMetadata.instance.imagePositionPatient = tags['x52009230'][0]['x00209113'][0]['x00200032'];
+            imageMetadata.instance.sliceThickness = tags['x52009229'][0]['x00289110'][0]['x00180050'];
+            imageMetadata.instance.spacingBetweenSlices = tags['x52009229'][0]['x00289110'][0]['x00180088'];
+            imageMetadata.instance.pixelSpacing = tags['x52009229'][0]['x00289110'][0]['x00280030'];
+            imageMetadata.instance.imageOrientationPatient = tags['x52009229'][0]['x00209116'][0]['x00200037'];
         }
 
         imageMetadata.imagePlane = imageMetadata.imagePlane || this.getImagePlane(imageMetadata.instance);

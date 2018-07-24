@@ -87,7 +87,10 @@ async function displayFiducials(instance) {
           const seriesDescription = cornerstone.metaData.get('series', imageId)['seriesDescription'];
           fiducials.forEach(async (val, index) => {
               const imagePoint = val[descriptionMap(seriesDescription)];
-              const imagaIndex = cornerstone.metaData.get('series', imageId).numImages - imagePoint.z - 1;
+              let imagaIndex = cornerstone.metaData.get('series', imageId).numImages - imagePoint.z - 1;
+              if (descriptionMap(seriesDescription) === 'ktrans') {
+                  imagaIndex = imagePoint.z;
+              }
               function scroll() {
                 return new Promise(resolve => {
                   setTimeout(() => {

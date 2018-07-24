@@ -1,5 +1,5 @@
 import { Mongo } from 'meteor/mongo';
-import { cornerstoneTools, cornerstone } from 'meteor/ohif:cornerstone'
+import { cornerstoneTools, cornerstone } from 'meteor/ohif:cornerstone';
 import { $ } from 'meteor/jquery';
 import { waitUntilExists } from 'jquery.waituntilexists';
 
@@ -111,29 +111,26 @@ function addFiducial(element, measurementData) {
     let imageIds = [];
 
     $('.imageViewerViewport').each((index, ele) => {
-      // TODO: REMOVE index check after coreecting multiframe issue
-      if (index !== 3) {
-        let elementSpecificMeasurementData = $.extend(true, {}, measurementData);
-        const imagePoint = getImagePoint(patientPoint, ele);
-        const id = fiducialCounter[studyInstanceUidString]
+      let elementSpecificMeasurementData = $.extend(true, {}, measurementData);
+      const imagePoint = getImagePoint(patientPoint, ele);
+      const id = fiducialCounter[studyInstanceUidString]
 
-        if (measurementData.hasOwnProperty('server')) {
-            id = 'server.'.concat(measurementData.f_id);
-        }
+      if (measurementData.hasOwnProperty('server')) {
+          id = 'server.'.concat(measurementData.f_id);
+      }
 
-        elementSpecificMeasurementData.handles.end.x = imagePoint.x;
-        elementSpecificMeasurementData.handles.end.y = imagePoint.y;
-        elementSpecificMeasurementData.id = id;
-        elementSpecificMeasurementData.active = false;
+      elementSpecificMeasurementData.handles.end.x = imagePoint.x;
+      elementSpecificMeasurementData.handles.end.y = imagePoint.y;
+      elementSpecificMeasurementData.id = id;
+      elementSpecificMeasurementData.active = false;
 
-        if (isInBoundary(ele, elementSpecificMeasurementData.handles.end)) {
-            $(ele).off('cornerstonetoolsmeasurementadded');
-            cornerstoneTools.addToolState(ele, 'probe', elementSpecificMeasurementData);
-            cornerstone.updateImage(ele);
-            bindToMeasurementAdded(ele);
+      if (isInBoundary(ele, elementSpecificMeasurementData.handles.end)) {
+          $(ele).off('cornerstonetoolsmeasurementadded');
+          cornerstoneTools.addToolState(ele, 'probe', elementSpecificMeasurementData);
+          cornerstone.updateImage(ele);
+          bindToMeasurementAdded(ele);
 
-            imageIds.push(cornerstone.getEnabledElement(ele).image.imageId);
-        }
+          imageIds.push(cornerstone.getEnabledElement(ele).image.imageId);
       }
     });
 
@@ -144,8 +141,6 @@ function addFiducial(element, measurementData) {
           'imageIds': imageIds,
           'patientPoint': patientPoint
         }
-
-        // console.log(patientPoint);
 
         fiducialsCollection.insert(fiducial);
     }
@@ -180,17 +175,15 @@ function removeFiducial(element, measurementData) {
     }
     else if (measurementData.hasOwnProperty('id')) {
         $('.imageViewerViewport').each((index, ele) => {
-          if (index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
-            const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
+          const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
 
-            for (let i = 0; i < toolData.data.length; i++) {
-                if (toolData.data[i].id === measurementData.id) {
-                    toolData.data.splice(i, 1);
-                }
-            }
-
-            cornerstone.updateImage(ele);
+          for (let i = 0; i < toolData.data.length; i++) {
+              if (toolData.data[i].id === measurementData.id) {
+                  toolData.data.splice(i, 1);
+              }
           }
+
+          cornerstone.updateImage(ele);
         });
         fiducialsCollection.remove({ 'id': measurementData.id });
     }
@@ -210,7 +203,7 @@ function modifyFiducial(element, measurementData) {
     }
     else {
         $('.imageViewerViewport').each((index, ele) => {
-            if (ele !== element && index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
+            if (ele !== element) {
                 const toolData = cornerstoneTools.getElementToolStateManager(ele).get(ele, 'probe');
 
                 for (let i = 0; i < toolData.data.length; i++) {
@@ -268,11 +261,9 @@ function bindToMeasurementModified(element) {
 
 
 $('.imageViewerViewport').waitUntilExists((index, element) => {
-    if (index !== 3) { // TODO: REMOVE index check after coreecting multiframe issue
-        bindToMeasurementAdded(element);
-        bindToMeasurementRemoved(element);
-        bindToMeasurementModified(element);
-    }
+      bindToMeasurementAdded(element);
+      bindToMeasurementRemoved(element);
+      bindToMeasurementModified(element);
 });
 
 
@@ -295,7 +286,7 @@ $('.toolbarSectionTools').waitUntilExists((index, element) => {
                         const activeViewportIndex = Session.get('activeViewport');
                         const newIndex = OHIF.viewerbase.layoutManager.viewportData[activeViewportIndex]['currentImageIdIndex'];
                         const element = $('.imageViewerViewport')[activeViewportIndex];
-                        cornerstoneTools.scrollToIndex(element, 0);
+                        cornerstoneTools.scrollToIndex(element, 1);
                         cornerstoneTools.scrollToIndex(element, newIndex);
                         resolve('resolved');
                     }, 1);
